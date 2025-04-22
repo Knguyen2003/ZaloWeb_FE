@@ -15,12 +15,14 @@ import {
 import { formatUpdatedAt } from "../services/formatDate";
 import { getSocket } from "../services/socket";
 import FriendPage from "./ParentComponentFriend";
+import CreateGroup from "./CreateGroup";
 
 const Sidebar = () => {
   const [chatItems, setChatItems] = useState([]);
   const { setSelectedUser } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   const fetchConversations = async () => {
     setIsLoading(true);
@@ -103,7 +105,10 @@ const Sidebar = () => {
           <UserPlus className="w-5 h-5 text-gray-600" />
         </button>
 
-        <button className="p-2 hover:bg-gray-100 rounded">
+        <button
+          className="p-2 hover:bg-gray-100 rounded"
+          onClick={() => setShowCreateGroup(true)}
+        >
           <Users className="w-5 h-5 text-gray-600" />
         </button>
       </div>
@@ -194,6 +199,9 @@ const Sidebar = () => {
 
       {/* Hiển thị AddFriendModal khi isDialogOpen là true */}
       {isDialogOpen && <FriendPage onClose={closeDialog} />}
+      {showCreateGroup && (
+        <CreateGroup onClose={() => setShowCreateGroup(false)} />
+      )}
     </div>
   );
 };
