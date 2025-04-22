@@ -66,6 +66,15 @@ const Sidebar = () => {
       });
 
       socket.on("friendRequestAccepted", fetchConversations);
+      socket.on("createGroup", (newGroupConversation) => {
+        setChatItems((prevChatItems) => {
+          const updatedChatItems = [newGroupConversation, ...prevChatItems];
+          updatedChatItems.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+          return updatedChatItems;
+        });
+      });
 
       socket.on("createGroup", (data) => {
         console.log("Received notification createGroup:", data);
@@ -76,6 +85,7 @@ const Sidebar = () => {
       if (socket) {
         socket.off("newMessage", fetchConversationById);
         socket.off("friendRequestAccepted", fetchConversations);
+        socket.off("createGroup", fetchConversations);
       }
     };
   }, []);
