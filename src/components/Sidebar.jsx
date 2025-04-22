@@ -62,15 +62,20 @@ const Sidebar = () => {
     const socket = getSocket();
     if (socket) {
       socket.on("newMessage", (newMessage) => {
-        // Khi có tin nhắn mới, chỉ tải lại cuộc trò chuyện có tin nhắn mới
         fetchConversationById(newMessage.conversationId);
       });
+
       socket.on("friendRequestAccepted", fetchConversations);
+
+      socket.on("createGroup", (data) => {
+        console.log("Received notification createGroup:", data);
+      });
     }
 
     return () => {
       if (socket) {
         socket.off("newMessage", fetchConversationById);
+        socket.off("friendRequestAccepted", fetchConversations);
       }
     };
   }, []);

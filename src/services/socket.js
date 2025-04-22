@@ -4,7 +4,7 @@ let socket = null;
 
 export const initializeSocket = (userId) => {
   if (!socket) {
-    socket = io("https://zaloweb-production.up.railway.app/", {
+    socket = io("http://localhost:5001/", {
       query: {
         userId,
         deviceType: "web",

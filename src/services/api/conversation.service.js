@@ -46,3 +46,24 @@ export const getConversationById = async (conversationId) => {
     throw error;
   }
 };
+
+export const addMembersToGrou = async (conversationId, newMemberIds) => {
+  try {
+    const response = await API.post(
+      `/conversation/add-members`,
+      { conversationId, newMemberIds },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("Không thể thêm thành viên vào nhóm");
+  }
+};

@@ -5,8 +5,7 @@ const token = userData?.token;
 export const userService = {
   async findUserByPhoneNumber(phoneNumber) {
     try {
-      const res = await API.get(`/auth/getUserByPhoneNumber`, {
-        params: { phoneNumber },
+      const res = await API.get(`/users/get-by-phone/${phoneNumber}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

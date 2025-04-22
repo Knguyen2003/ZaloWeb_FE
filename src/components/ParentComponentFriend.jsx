@@ -10,7 +10,7 @@ export default function FriendPage({ onClose }) {
   const [searchedUser, setSearchedUser] = useState(null);
 
   const handleSearch = (user) => {
-    setSearchedUser(user);
+    setSearchedUser(user.user);
     setAddModalOpen(false); // Ẩn modal "Thêm bạn"
     setInfoModalOpen(true); // Hiện modal "Thông tin cá nhân"
   };

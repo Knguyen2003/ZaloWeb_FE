@@ -43,4 +43,26 @@ export const friendService = {
       throw new Error("Không thể kiểm tra trạng thái bạn bè");
     }
   },
+
+  acceptRequest: async (requestId) => {
+    try {
+      const response = await API.post(
+        `/friend/accept`,
+        { requestId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error("Không thể chấp nhận yêu cầu kết bạn");
+    }
+  },
 };

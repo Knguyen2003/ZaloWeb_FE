@@ -29,6 +29,7 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
     };
     if (socket) {
       socket.on("friendRequest", fetchStatus);
+      socket.on("friendRequestAccepted", fetchStatus);
     }
 
     if (isOpen) {
@@ -38,6 +39,7 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
     return () => {
       if (socket) {
         socket.off("friendRequest", fetchStatus);
+        socket.off("friendRequestAccepted", fetchStatus);
       }
     };
   }, [isOpen, user]);
@@ -70,6 +72,18 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
       });
     } catch (err) {
       setErrorMessage(err.message || "Gửi lời mời kết bạn thất bại");
+    }
+  };
+
+  const handelAcceptFriendRequest = async () => {
+    try {
+      const res = await friendService.acceptRequest(friendStatus._id);
+      setFriendStatus({
+        status: "accepted",
+        targetUser: user._id,
+      });
+    } catch (err) {
+      setErrorMessage(err.message || "Chấp nhận mời kết bạn thất bại");
     }
   };
 
@@ -191,7 +205,10 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
             {friendStatus?.status === "pending" &&
               friendStatus?.targetUser !== user._id && (
                 <div className="flex justify-center gap-2 w-full">
-                  <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100">
+                  <button
+                    className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100"
+                    onClick={handelAcceptFriendRequest}
+                  >
                     Chấp nhận
                   </button>
                   <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
