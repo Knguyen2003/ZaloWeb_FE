@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Smartphone } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 import ZaloPasswordReset from "./PasswordReset";
-import { authAPI } from "../config/axios";
 
 const ZaloPasswordRecovery = () => {
   const [phone, setPhone] = useState("");

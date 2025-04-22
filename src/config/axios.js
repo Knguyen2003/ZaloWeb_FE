@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const API = axios.create({
-  baseURL: "http://192.168.225.106:5001/api",
+  baseURL: "https://zaloweb-production.up.railway.app/api",
   headers: {
     "Content-Type": "application/json",
   },

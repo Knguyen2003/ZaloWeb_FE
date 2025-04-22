@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
-import { authAPI } from "../config/axios";
 
 const ZaloPasswordReset = ({ phone, lang, tempToken }) => {
   const [otp, setOtp] = useState("");
