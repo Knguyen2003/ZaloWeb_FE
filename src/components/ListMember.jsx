@@ -3,21 +3,11 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 
 import AddMemberGroup from "./AddMemberGroup";
+import { removeMemberFromGroup } from "../services/api/conversation.service";
 
-const members = [
-  {
-    id: 1,
-    name: "Bạn",
-    role: "Trưởng nhóm",
-    avatar: "/public/user.jpg",
-    isFriend: true,
-  },
-  { id: 2, name: "Trntb", avatar: "/public/user.jpg", isFriend: false },
-  { id: 3, name: "Hai Anh", avatar: "/public/user.jpg", isFriend: true },
-  { id: 4, name: "Khôi Nguyên", avatar: "/public/user.jpg", isFriend: true },
-];
+const ListMember = ({ onClose, conversation }) => {
+  const user = JSON.parse(localStorage.getItem("user")).user;
 
-const ListMember = ({ onClose }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [currentMember, setCurrentMember] = useState(null);
@@ -48,6 +38,15 @@ const ListMember = ({ onClose }) => {
     } else if (option === "leaveGroup") {
       console.log(`${currentMember.name} đã rời nhóm`);
       // Thực hiện hành động rời nhóm
+    }
+  };
+
+  const handelLeaveGroup = async (memberId) => {
+    try {
+      await removeMemberFromGroup(conversation._id, memberId);
+      onClose();
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -93,27 +92,40 @@ const ListMember = ({ onClose }) => {
 
         {/* Danh sách */}
         <p className="text-sm mt-4 mb-2 text-gray-700">
-          Danh sách thành viên ({members.length})
+          Danh sách thành viên ({conversation.participants.length})
         </p>
 
         {/* Thành viên */}
         <div className="flex flex-col gap-3">
-          {members.map((m) => (
-            <div key={m.id} className="flex items-center justify-between">
+          {conversation.participants.map((m) => (
+            <div key={m._id} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <img
-                  src={m.avatar}
-                  alt="avatar"
-                  className="w-9 h-9 rounded-full object-cover"
-                />
+                {m.profilePic ? (
+                  <img
+                    src={m.profilePic}
+                    alt="avatar"
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                    {m.fullName
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
                 <div>
-                  <p className="text-sm font-medium">{m.name}</p>
-                  {m.role && <p className="text-xs text-gray-500">{m.role}</p>}
+                  <p className="text-sm font-medium">{m.fullName}</p>
+                  {m._id === conversation.groupLeader && (
+                    <p className="text-xs text-gray-500 ">Trưởng nhóm</p>
+                  )}
                 </div>
               </div>
               <div
                 className="flex justify-end mb-2"
-                onContextMenu={(e) => handleContextMenu(e, m)} // Bắt sự kiện chuột phải
+                onClick={(e) => handleContextMenu(e, m)}
               >
                 <MoreHorizontal className="text-gray-500" />
               </div>
@@ -134,36 +146,43 @@ const ListMember = ({ onClose }) => {
             style={{ top: menuPosition.y, left: menuPosition.x }}
           >
             <ul>
-              {currentMember?.role !== "Trưởng nhóm" && (
-                <>
+              {currentMember._id !== conversation.groupLeader &&
+                user._id === conversation.groupLeader && (
+                  <>
+                    <li
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                      onClick={() => console.log("chào")}
+                    >
+                      Thêm nhóm phó
+                    </li>
+                    <li
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                      onClick={() => handelLeaveGroup(currentMember._id)}
+                    >
+                      Xóa khỏi nhóm
+                    </li>
+                  </>
+                )}
+              {currentMember._id === conversation.groupLeader &&
+                user._id === conversation.groupLeader && (
                   <li
                     className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleMenuOptionClick("addViceGroup")} // Thêm nhóm phó
+                    onClick={() => handleMenuOptionClick("leaveGroup")}
                   >
-                    Thêm nhóm phó
+                    Rời nhóm
                   </li>
-                  <li
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleMenuOptionClick("removeFromGroup")}
-                  >
-                    Xóa khỏi nhóm
-                  </li>
-                </>
-              )}
-              {currentMember?.role === "Trưởng nhóm" && (
-                <li
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleMenuOptionClick("leaveGroup")}
-                >
-                  Rời nhóm
-                </li>
-              )}
+                )}
             </ul>
           </div>
         )}
       </div>
       {/* Hiển thị */}
-      {showAddMemberGroup && <AddMemberGroup onClose={toggleAddMemberGroup} />}
+      {showAddMemberGroup && (
+        <AddMemberGroup
+          onClose={toggleAddMemberGroup}
+          conversation={conversation}
+        />
+      )}
     </div>
   );
 };

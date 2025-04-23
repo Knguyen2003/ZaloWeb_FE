@@ -1,33 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, ChevronLeft, Search } from "lucide-react";
+import { addMembersToGroup } from "../services/api/conversation.service";
+import { friendService } from "../services/api/friend.service";
 
-const dummyUsers = [
-  { id: 1, name: "Bảo Thông", avatar: "https://i.pravatar.cc/150?u=1" },
-  { id: 2, name: "Dương Domic", avatar: "https://i.pravatar.cc/150?u=2" },
-  { id: 3, name: "Ngô Thái Hiệp", avatar: "https://i.pravatar.cc/150?u=3" },
-  { id: 4, name: "Khôi Nguyên", avatar: "https://i.pravatar.cc/150?u=4" },
-  { id: 5, name: "Thanh Yến", avatar: "https://i.pravatar.cc/150?u=5" },
-  { id: 6, name: "Ái Xuânn", avatar: "https://i.pravatar.cc/150?u=6" },
-  { id: 7, name: "Anh Bảo", avatar: "https://i.pravatar.cc/150?u=7" },
-  { id: 8, name: "Ánh Nguyệt", avatar: "https://i.pravatar.cc/150?u=8" },
-];
+const AddMemberGroup = ({ onClose, conversation }) => {
+  console.log("conversation AddMemberGroup: ", conversation);
 
-const AddMemberGroup = ({ onClose }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [friendList, setFriendList] = useState([]);
+  const [alreadyInGroup, setAlreadyInGroup] = useState(new Set()); // Tạo một Set để lưu người đã có trong nhóm
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friends = await friendService.getFriends();
+        console.log("Danh sách bạn bè: ", friends.data);
+        setFriendList(friends.data);
+        const participants = conversation?.participants || [];
+        setAlreadyInGroup(new Set(participants.map((user) => user._id)));
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+    fetchFriends();
+  }, [conversation]);
 
   const toggleUser = (user) => {
+    // Kiểm tra xem người đó đã có trong nhóm chưa, nếu có thì không cho chọn
+    if (alreadyInGroup.has(user._id)) {
+      return; // Nếu có trong nhóm, không cho chọn
+    }
     setSelectedUsers((prev) => {
-      const exists = prev.find((u) => u.id === user.id);
-      if (exists) return prev.filter((u) => u.id !== user.id);
+      const exists = prev.find((u) => u._id === user._id);
+      if (exists) return prev.filter((u) => u._id !== user._id);
       return [...prev, user];
     });
   };
 
-  const sortedUsers = [...dummyUsers].sort((a, b) =>
-    a.name.localeCompare(b.name, "vi")
+  const handleAddMembers = async () => {
+    try {
+      const newMemberIds = selectedUsers.map((user) => user._id);
+
+      const response = await addMembersToGroup(conversation._id, newMemberIds);
+      console.log("Thêm thành viên thành công:", response);
+
+      // Gọi callback hoặc đóng modal, tuỳ bạn
+      onClose(); // hoặc show toast thông báo thành công
+    } catch (error) {
+      console.error("Lỗi khi thêm thành viên:", error.message);
+      alert("Không thể thêm thành viên vào nhóm. Vui lòng thử lại.");
+    }
+  };
+
+  const sortedUsers = [...friendList].sort((a, b) =>
+    a.fullName.localeCompare(b.fullName, "vi")
   );
 
-  const isSelected = (id) => selectedUsers.findIndex((u) => u.id === id) !== -1;
+  const isSelected = (id) =>
+    selectedUsers.findIndex((u) => u._id === id) !== -1;
 
   // Kiểm tra số lượng người dùng được chọn để kích hoạt nút "Tạo nhóm"
   const isCreateGroupDisabled = selectedUsers.length < 1;
@@ -71,23 +101,41 @@ const AddMemberGroup = ({ onClose }) => {
             </p>
             {sortedUsers.map((user) => (
               <div
-                key={user.id}
-                className="flex items-center gap-3 py-2 cursor-pointer"
+                key={user._id}
+                className={`flex items-center gap-3 py-2 cursor-pointer ${
+                  alreadyInGroup.has(user._id) ? "opacity-50" : ""
+                }`}
                 onClick={() => toggleUser(user)}
               >
-                <input type="checkbox" checked={isSelected(user.id)} readOnly />
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover"
+                <input
+                  type="checkbox"
+                  checked={isSelected(user._id)}
+                  readOnly
+                  disabled={alreadyInGroup.has(user._id)} // Vô hiệu hóa chọn nếu người đã có trong nhóm
                 />
-                <span>{user.name}</span>
+                {user.profilePic ? (
+                  <img
+                    src={user.profilePic}
+                    alt="avatar"
+                    className="h-11 w-11 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-11 w-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                    {user.fullName
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()}
+                  </div>
+                )}
+                <span>{user.fullName}</span>
               </div>
             ))}
           </div>
 
           {/* ĐÃ CHỌN: chỉ hiển thị khi có user và showSelectedUsers là true */}
-          {selectedUsers.length > 0 && showSelectedUsers && (
+          {selectedUsers.length > 0 && (
             <div className="w-1/2 overflow-y-auto pl-2">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-sm font-medium text-gray-700">
@@ -97,16 +145,27 @@ const AddMemberGroup = ({ onClose }) => {
               <div className="space-y-2">
                 {selectedUsers.map((user) => (
                   <div
-                    key={user.id}
+                    key={user._id}
                     className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded"
                   >
                     <div className="flex items-center gap-2">
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <span>{user.name}</span>
+                      {user.profilePic ? (
+                        <img
+                          src={user.profilePic}
+                          alt="avatar"
+                          className="h-11 w-11 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-11 w-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                          {user.fullName
+                            ?.split(" ")
+                            .map((word) => word[0])
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()}
+                        </div>
+                      )}
+                      <span>{user.fullName}</span>
                     </div>
                     <button onClick={() => toggleUser(user)}>
                       <X className="w-4 h-4 text-gray-500" />
@@ -129,7 +188,7 @@ const AddMemberGroup = ({ onClose }) => {
             Hủy
           </button>
           <button
-            onClick={() => console.log("Tạo nhóm")}
+            onClick={handleAddMembers}
             className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 ${
               isCreateGroupDisabled
                 ? "bg-blue-300 cursor-not-allowed opacity-50"

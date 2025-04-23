@@ -14,7 +14,6 @@ const CreateGroup = ({ onClose }) => {
     const fetchFriends = async () => {
       try {
         const friends = await friendService.getFriends();
-        console.log("Danh sách bạn bè: ", friends.data);
         setFriendList(friends.data);
       } catch (error) {
         console.error(error.message);

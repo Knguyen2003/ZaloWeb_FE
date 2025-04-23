@@ -1,33 +1,28 @@
 import { useState } from "react";
 import { X, ChevronLeft, Search } from "lucide-react";
 
-const dummyUsers = [
-  { id: 1, name: "Bảo Thông", avatar: "https://i.pravatar.cc/150?u=1" },
-  { id: 2, name: "Dương Domic", avatar: "https://i.pravatar.cc/150?u=2" },
-  { id: 3, name: "Ngô Thái Hiệp", avatar: "https://i.pravatar.cc/150?u=3" },
-  { id: 4, name: "Khôi Nguyên", avatar: "https://i.pravatar.cc/150?u=4" },
-  { id: 5, name: "Thanh Yến", avatar: "https://i.pravatar.cc/150?u=5" },
-  { id: 6, name: "Ái Xuânn", avatar: "https://i.pravatar.cc/150?u=6" },
-  { id: 7, name: "Anh Bảo", avatar: "https://i.pravatar.cc/150?u=7" },
-  { id: 8, name: "Ánh Nguyệt", avatar: "https://i.pravatar.cc/150?u=8" },
-];
-
-const ChangeLeaderGroup = ({ onClose }) => {
+const ChangeLeaderGroup = ({ onClose, onSelect, conversation }) => {
   const [selectedUser, setSelectedUser] = useState(null);
+  const dummyUsers = conversation.participants;
 
   const sortedUsers = [...dummyUsers].sort((a, b) =>
-    a.name.localeCompare(b.name, "vi")
+    a.fullName.localeCompare(b.fullName, "vi")
   );
 
+  const handleChangeLeader = async () => {
+    onSelect(selectedUser);
+    onClose();
+  };
+
   const toggleUser = (user) => {
-    if (selectedUser && selectedUser.id === user.id) {
+    if (selectedUser && selectedUser._id === user._id) {
       setSelectedUser(null);
     } else {
       setSelectedUser(user);
     }
   };
 
-  const isSelected = (id) => selectedUser?.id === id;
+  const isSelected = (id) => selectedUser?._id === id;
 
   const isCreateGroupDisabled = !selectedUser;
 
@@ -66,17 +61,32 @@ const ChangeLeaderGroup = ({ onClose }) => {
             </p>
             {sortedUsers.map((user) => (
               <div
-                key={user.id}
+                key={user._id}
                 className="flex items-center gap-3 py-2 cursor-pointer"
                 onClick={() => toggleUser(user)}
               >
-                <input type="checkbox" checked={isSelected(user.id)} readOnly />
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover"
+                <input
+                  type="checkbox"
+                  checked={isSelected(user._id)}
+                  readOnly
                 />
-                <span>{user.name}</span>
+                {user.profilePic ? (
+                  <img
+                    src={user.profilePic}
+                    alt="avatar"
+                    className="h-11 w-11 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-11 w-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                    {user.fullName
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()}
+                  </div>
+                )}
+                <span>{user.fullName}</span>
               </div>
             ))}
           </div>
@@ -92,7 +102,7 @@ const ChangeLeaderGroup = ({ onClose }) => {
             Hủy
           </button>
           <button
-            onClick={() => console.log("Tạo nhóm")}
+            onClick={handleChangeLeader}
             className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 ${
               isCreateGroupDisabled
                 ? "bg-blue-300 cursor-not-allowed opacity-50"

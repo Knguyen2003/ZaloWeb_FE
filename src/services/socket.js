@@ -31,9 +31,7 @@ export const initializeSocket = (userId) => {
     //   window.location.href = "/login";
     // });
 
-    socket.on("newMessage", (message) => {
-      console.log("New message received:", message);
-    });
+    socket.on("newMessage", (message) => {});
 
     socket.on("disconnect", () => {
       console.log("Disconnected from socket server");

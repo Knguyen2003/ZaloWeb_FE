@@ -30,7 +30,6 @@ const Sidebar = () => {
     try {
       const conversations = await getConversationList();
       setChatItems(conversations.data);
-      console.log("Conversations:", conversations.data);
       setError(null);
     } catch (err) {
       setError("Failed to load conversations");
@@ -46,14 +45,11 @@ const Sidebar = () => {
       setChatItems((prevChatItems) => {
         const updated = prevChatItems.map((chat) => {
           if (chat._id === conversationId) {
-            return conversation; // thay thế toàn bộ object cũ bằng mới
+            return conversation;
           }
           return chat;
         });
-
-        // Đưa conversation mới cập nhật lên đầu danh sách
         updated.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
         return updated;
       });
     } catch (err) {
@@ -64,11 +60,16 @@ const Sidebar = () => {
   useEffect(() => {
     fetchConversations();
     const socket = getSocket();
+
+    const handleLeaveGroup = () => {
+      fetchConversations();
+      setSelectedUser(null);
+    };
+
     if (socket) {
       socket.on("newMessage", (newMessage) => {
         fetchConversationById(newMessage.conversationId);
       });
-
       socket.on("friendRequestAccepted", fetchConversations);
       socket.on("createGroup", (newGroupConversation) => {
         setChatItems((prevChatItems) => {
@@ -79,10 +80,8 @@ const Sidebar = () => {
           return updatedChatItems;
         });
       });
-
-      socket.on("createGroup", (data) => {
-        console.log("Received notification createGroup:", data);
-      });
+      socket.on("groupUpdated", handleLeaveGroup);
+      socket.on("leaveGroup", handleLeaveGroup);
     }
 
     return () => {
@@ -90,6 +89,8 @@ const Sidebar = () => {
         socket.off("newMessage", fetchConversationById);
         socket.off("friendRequestAccepted", fetchConversations);
         socket.off("createGroup", fetchConversations);
+        socket.off("groupUpdated", fetchConversations);
+        socket.off("leaveGroup", fetchConversations);
       }
     };
   }, []);
@@ -173,12 +174,12 @@ const Sidebar = () => {
                   <img
                     src={chat.avatar}
                     alt="avatar"
-                    className="h-12 w-12 rounded-full object-cover"
+                    className="h-11 w-16 rounded-full object-cover"
                   />
                 ) : chat.isGroup ? (
                   <GroupAvatar chat={chat} />
                 ) : (
-                  <div className="h-10 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                  <div className="h-11 w-14 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
                     {chat.name
                       ?.split(" ")
                       .map((word) => word[0])
@@ -190,7 +191,7 @@ const Sidebar = () => {
 
                 <div className="flex flex-col w-full ">
                   <div className="flex justify-between items-center">
-                    <h3 className="truncate">
+                    <h3 className="max-w-[180px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
                       {chat.name && chat.name.trim() !== ""
                         ? chat.name
                         : chat.groupName}

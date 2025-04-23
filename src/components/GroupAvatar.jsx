@@ -32,15 +32,41 @@ const GroupAvatar = ({ chat }) => {
       "bottom-0 right-0", // dưới phải
     ];
     return (
-      <div className="h-12 w-16 relative">
+      <div className="h-14 w-14 relative shrink-0 grow-0 basis-auto">
         {participants.slice(0, 3).map((p, i) => (
           <div
             key={i}
-            className={`absolute h-7 w-7 rounded-full border-2 border-white ${pos[i]}`}
+            className={`absolute h-8 w-8 rounded-full border-2 border-white ${pos[i]}`}
           >
             {p.profilePic ? (
               <img
                 src={p.profilePic}
+                className="h-full w-full object-cover rounded-full"
+              />
+            ) : (
+              <div className="h-full w-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold rounded-full">
+                {generateInitials(p.fullName)}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  // 👬 2 người: hiển thị cạnh nhau
+  // 👬 2 người: hiển thị cạnh nhau
+  if (total === 2) {
+    return (
+      <div className="h-10 w-14 flex items-center justify-center shrink-0 grow-0 basis-auto">
+        {participants.slice(0, 2).map((p, i) => (
+          <div
+            key={i}
+            className="h-8 w-10 rounded-full border-2 border-white overflow-hidden"
+          >
+            {p.profilePic ? (
+              <img
+                src={p.profilePic}
+                alt="avatar"
                 className="h-full w-full object-cover rounded-full"
               />
             ) : (
@@ -61,12 +87,12 @@ const GroupAvatar = ({ chat }) => {
   const displayList = participants.slice(0, maxShow);
 
   return (
-    <div className="h-12 w-12 grid grid-cols-2 grid-rows-2 gap-[2px]">
+    <div className="h-14 w-14 grid grid-cols-2 grid-rows-2 gap-0 shrink-0 grow-0 basis-auto">
       {displayList.map((p, i) =>
         i === 3 && remaining > 0 ? (
           <div
             key={i}
-            className="bg-gray-500 text-white flex items-center justify-center text-xs font-semibold rounded-[4px]"
+            className="bg-gray-500 text-white flex items-center justify-center text-xs font-semibold rounded-full"
           >
             +{remaining}
           </div>
@@ -76,10 +102,10 @@ const GroupAvatar = ({ chat }) => {
               <img
                 src={p.profilePic}
                 alt="avatar"
-                className="h-full w-full object-cover rounded-[4px]"
+                className="h-full w-full object-cover rounded-full"
               />
             ) : (
-              <div className="h-full w-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold rounded-[4px]">
+              <div className="h-full w-full bg-blue-500 text-white flex items-center justify-center text-xs font-semibold rounded-full">
                 {generateInitials(p.fullName)}
               </div>
             )}

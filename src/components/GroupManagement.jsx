@@ -14,19 +14,18 @@ import { Button } from "@/components/ui/button";
 import ListMember from "./ListMember";
 import AuthorizationGroup from "./AuthorizationGroup";
 import UpdateGroup from "./UpdateGroup";
+import GroupAvatar from "./GroupAvatar";
+import ChangeLeaderGroup from "./ChangeLeaderGroup";
+import { Avatar } from "@/components/ui/avatar";
+import { leaveGroup, deleteGroup } from "../services/api/conversation.service";
 
-const GroupManagement = ({ onClose }) => {
-  const members = [
-    { id: 1, avatar: "/public/user.jpg" },
-    { id: 2, avatar: "/public/user.jpg" },
-    { id: 3, avatar: "/public/user.jpg" },
-    { id: 4, avatar: "/public/user.jpg" },
-  ];
-
+const GroupManagement = ({ onClose, conversation }) => {
+  const user = JSON.parse(localStorage.getItem("user")).user;
   const [showUpdateModel, setUpdateModel] = useState(false);
   const [showListMember, setShowListMember] = useState(false);
   const [showAuthorizationGroup, setShowAuthorizationGroup] = useState(false);
   const [showUpdateGroup, setShowUpdateGroup] = useState(false);
+  const [showChangeLeader, setShowChangeLeader] = useState(false);
 
   const toggleUpdateModel = () => {
     setUpdateModel(!showUpdateModel);
@@ -34,6 +33,10 @@ const GroupManagement = ({ onClose }) => {
 
   const toggleListMember = () => {
     setShowListMember(!showListMember);
+  };
+
+  const toggleChangeLeader = () => {
+    setShowChangeLeader(!showChangeLeader);
   };
 
   const toggleAuthorizationGroup = () => {
@@ -51,6 +54,38 @@ const GroupManagement = ({ onClose }) => {
     alert("Đã sao chép liên kết nhóm!");
   };
 
+  const handleLeaveGroup = async (newLeaderId = null) => {
+    try {
+      if (conversation.groupLeader === user._id && !newLeaderId) {
+        setShowChangeLeader(!showChangeLeader);
+        return;
+      }
+      const confirmLeave = window.confirm("Bạn có chắc chắn muốn rời nhóm?");
+      if (!confirmLeave) return;
+      await leaveGroup(conversation._id, newLeaderId);
+      alert("Bạn đã rời nhóm thành công!");
+      onClose();
+    } catch (error) {
+      console.error("Leave group error:", error);
+      alert(error.message || "Đã xảy ra lỗi khi rời nhóm.");
+    }
+  };
+
+  const handleSelectNewLeader = (user) => {
+    handleLeaveGroup(user._id);
+    toggleChangeLeader();
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      await deleteGroup(conversation._id);
+      onClose();
+    } catch (err) {
+      console.error("Lỗi khi xóa nhóm:", err.message);
+      alert("Không thể xóa nhóm");
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="w-[450px] h-[720px] bg-white rounded shadow-lg p-4 flex flex-col gap-4 relative">
@@ -66,20 +101,33 @@ const GroupManagement = ({ onClose }) => {
         {/* Ảnh đại diện + Tên nhóm */}
         <div className="flex items-center gap-4">
           <div className="relative w-fit">
-            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
-              <img
-                src={"/user.jpg"}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <button className="absolute bottom-0 left-14 bg-white p-1 rounded-full shadow-md cursor-pointer hover:bg-gray-200 border">
+            <Avatar className="h-14 w-14 border border-gray-300">
+              {conversation.avatar ? (
+                <img
+                  src={conversation.avatar}
+                  alt="avatar"
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              ) : conversation.isGroup ? (
+                <GroupAvatar chat={conversation} />
+              ) : (
+                <div className="h-10 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                  {conversation.name
+                    ?.split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+              )}
+            </Avatar>
+            <button className="absolute bottom-0 left-10 bg-white p-1 rounded-full shadow-md cursor-pointer hover:bg-gray-200 border">
               <Camera className="w-5 h-5 text-gray-600" />
               <input type="file" className="hidden" />
             </button>
           </div>
           <div className="flex justify-between gap-1">
-            <p className="font-medium">Phan Nguyễn Khôi Nguyên, An...</p>
+            <p className="font-medium">{conversation.groupName}</p>
             <button
               className="text-blue-600 hover:underline text-sm"
               onClick={toggleUpdateGroup}
@@ -101,24 +149,38 @@ const GroupManagement = ({ onClose }) => {
         {/* Danh sách thành viên */}
         <div className="flex flex-col gap-2 mt-2">
           <p className="text-sm font-medium mb-1">
-            Thành viên ({members.length})
+            Thành viên ({conversation.participants.length})
           </p>
           <div className="flex gap-2">
-            {members.map((m) => (
-              <img
-                key={m.id}
-                src={m.avatar}
-                alt="avatar"
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            ))}
+            {conversation.participants.map((m) =>
+              m.profilePic ? (
+                <img
+                  key={m._id}
+                  src={m.profilePic}
+                  alt="avatar"
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+              ) : (
+                <div
+                  key={m._id}
+                  className="h-10 w-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold"
+                >
+                  {m.fullName
+                    ?.split(" ")
+                    .map((word) => word[0])
+                    .join("")
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+              )
+            )}
             <Button variant="ghost" size="icon" onClick={toggleListMember}>
               <MoreHorizontal className="h-5 w-5" />
             </Button>
           </div>
         </div>
 
-        {/* Ảnh và Video*/}
+        {/* Ảnh và Video */}
         <div>
           <p className="text-sm font-medium mb-1">Ảnh và Video</p>
           <div className="flex flex-col items-center gap-2 border border-gray-300 rounded p-8 bg-gray-50">
@@ -145,31 +207,61 @@ const GroupManagement = ({ onClose }) => {
 
         {/* Hành động */}
         <div className="flex flex-col gap-2 mt-auto">
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={toggleAuthorizationGroup}
-          >
-            <Settings className="mr-2" size={16} />
-            Quản lý nhóm
-          </Button>
-          <Button variant="outline" className="w-full">
-            <OctagonX className="mr-2" size={16} />
-            Giải tán nhóm
-          </Button>
-          <Button variant="outline" className="w-full">
-            <LogOut className="mr-2" size={16} />
-            Rời nhóm
-          </Button>
+          {conversation.groupLeader === user._id ? (
+            <>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={toggleAuthorizationGroup}
+              >
+                <Settings className="mr-2" size={16} />
+                Quản lý nhóm
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => handleLeaveGroup(null)}
+              >
+                <LogOut className="mr-2" size={16} />
+                Rời nhóm
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full text-red-600 hover:text-red-700 border-red-600"
+                onClick={handleDeleteGroup}
+              >
+                <OctagonX className="mr-2" size={16} />
+                Giải tán nhóm
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => handleLeaveGroup(null)}
+            >
+              <LogOut className="mr-2" size={16} />
+              Rời nhóm
+            </Button>
+          )}
         </div>
       </div>
-      {/* hiển thị */}
+      {/* Hiển thị */}
       {showUpdateModel && <GroupManagement onClose={toggleUpdateModel} />}
-      {showListMember && <ListMember onClose={toggleListMember} />}
+      {showListMember && (
+        <ListMember onClose={toggleListMember} conversation={conversation} />
+      )}
       {showAuthorizationGroup && (
         <AuthorizationGroup onClose={toggleAuthorizationGroup} />
       )}
       {showUpdateGroup && <UpdateGroup onClose={toggleUpdateGroup} />}
+      {showChangeLeader && (
+        <ChangeLeaderGroup
+          onClose={toggleChangeLeader}
+          onSelect={handleSelectNewLeader}
+          conversation={conversation}
+        />
+      )}
     </div>
   );
 };
