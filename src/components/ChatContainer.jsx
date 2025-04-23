@@ -211,17 +211,17 @@ const ChatInterface = ({ conversation }) => {
       {/* Header */}
       <header className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-3">
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-16 w-16 shrink-0 grow-0 basis-auto flex items-center justify-center">
             {conversation.avatar ? (
               <img
                 src={conversation.avatar}
                 alt="avatar"
-                className="h-12 w-12 rounded-full object-cover"
+                className="h-14 w-14 rounded-full object-cover"
               />
             ) : conversation.isGroup ? (
               <GroupAvatar chat={conversation} />
             ) : (
-              <div className="h-10 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+              <div className="size-14 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
                 {conversation.name
                   ?.split(" ")
                   .map((word) => word[0])
@@ -356,9 +356,17 @@ const ChatInterface = ({ conversation }) => {
           </div>
         </div>
       </div>
-      {showAddMemberGroup && <AddMemberGroup onClose={toggleAddMemberGroup} />}
+      {showAddMemberGroup && (
+        <AddMemberGroup
+          onClose={toggleAddMemberGroup}
+          conversation={conversation}
+        />
+      )}
       {showGroupManagement && (
-        <GroupManagement onClose={toggleGroupManagement} />
+        <GroupManagement
+          onClose={toggleGroupManagement}
+          conversation={conversation}
+        />
       )}
     </div>
   );
