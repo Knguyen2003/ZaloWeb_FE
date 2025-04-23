@@ -1,42 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Camera, Search } from "lucide-react";
-
-const dummyUsers = [
-  { id: 1, name: "Bảo Thông", avatar: "https://i.pravatar.cc/150?u=1" },
-  { id: 2, name: "Dương Domic", avatar: "https://i.pravatar.cc/150?u=2" },
-  { id: 3, name: "Ngô Thái Hiệp", avatar: "https://i.pravatar.cc/150?u=3" },
-  { id: 4, name: "Khôi Nguyên", avatar: "https://i.pravatar.cc/150?u=4" },
-  { id: 5, name: "Thanh Yến", avatar: "https://i.pravatar.cc/150?u=5" },
-  { id: 6, name: "Ái Xuânn", avatar: "https://i.pravatar.cc/150?u=6" },
-  { id: 7, name: "Anh Bảo", avatar: "https://i.pravatar.cc/150?u=7" },
-  { id: 8, name: "Ánh Nguyệt", avatar: "https://i.pravatar.cc/150?u=8" },
-];
+import { friendService } from "../services/api/friend.service";
+import { createGroup } from "../services/api/conversation.service";
 
 const CreateGroup = ({ onClose }) => {
   const [groupName, setGroupName] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [showSelectedUsers, setShowSelectedUsers] = useState(true); // Duy trì trạng thái cho phần đã chọn
   const [groupAvatar, setGroupAvatar] = useState(null); // ảnh nhóm
+  const [friendList, setFriendList] = useState([]); // Danh sách bạn bè
+  const [avatarFile, setAvatarFile] = useState(null); // File ảnh nhóm
+
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const friends = await friendService.getFriends();
+        console.log("Danh sách bạn bè: ", friends.data);
+        setFriendList(friends.data);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    fetchFriends();
+  }, []);
 
   const toggleUser = (user) => {
     setSelectedUsers((prev) => {
-      const exists = prev.find((u) => u.id === user.id);
-      if (exists) return prev.filter((u) => u.id !== user.id);
+      const exists = prev.find((u) => u._id === user._id);
+      if (exists) return prev.filter((u) => u._id !== user._id);
       return [...prev, user];
     });
   };
 
-  const sortedUsers = [...dummyUsers].sort((a, b) =>
-    a.name.localeCompare(b.name, "vi")
-  );
-
-  const isSelected = (id) => selectedUsers.findIndex((u) => u.id === id) !== -1;
-
-  const handleCloseSelected = () => {
-    setShowSelectedUsers(false); // Ẩn phần đã chọn khi nhấn đóng
+  const handleCreateGroup = async () => {
+    try {
+      const participantIds = selectedUsers.map((user) => user._id);
+      const formData = new FormData();
+      formData.append("groupName", groupName);
+      formData.append("participantIds", JSON.stringify(participantIds));
+      if (avatarFile) {
+        formData.append("groupAvatar", avatarFile);
+      }
+      const response = await createGroup(formData);
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi tạo nhóm:", error.message);
+      alert("Không thể tạo nhóm. Vui lòng thử lại.");
+    }
   };
 
-  // Kiểm tra số lượng người dùng được chọn để kích hoạt nút "Tạo nhóm"
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setGroupAvatar(reader.result); // Cập nhật ảnh đại diện nhóm
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const sortedUsers = [...friendList].sort((a, b) =>
+    a.fullName.localeCompare(b.fullName, "vi")
+  );
+
+  const isSelected = (id) =>
+    selectedUsers.findIndex((u) => u._id === id) !== -1;
+
   const isCreateGroupDisabled = selectedUsers.length < 2;
 
   return (
@@ -53,10 +84,7 @@ const CreateGroup = ({ onClose }) => {
 
         {/* PHẦN TRÊN: Nhập tên nhóm */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowAvatarModal(true)}
-            className="p-1 rounded-full hover:bg-gray-100"
-          >
+          <button className="p-1 rounded-full hover:bg-gray-100">
             {groupAvatar ? (
               <img
                 src={groupAvatar}
@@ -69,9 +97,21 @@ const CreateGroup = ({ onClose }) => {
           </button>
           <input
             type="text"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
             placeholder="Nhập tên nhóm"
             className="flex-1 p-2 border-b rounded-lg focus:outline-none focus:border-blue-500"
           />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+            id="group-avatar-upload"
+          />
+          <label htmlFor="group-avatar-upload" className="cursor-pointer">
+            <Camera className="w-5 h-5 text-gray-400" />
+          </label>
         </div>
 
         {/* PHẦN TÌM KIẾM */}
@@ -80,7 +120,6 @@ const CreateGroup = ({ onClose }) => {
             placeholder="Nhập tên, số điện thoại, hoặc danh sách số điện thoại"
             className="w-full px-10 py-2 border rounded text-sm focus:outline-none"
           />
-          {/* Icon kính lúp */}
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
             <Search className="w-5 h-5" />
           </div>
@@ -88,30 +127,43 @@ const CreateGroup = ({ onClose }) => {
 
         {/* PHẦN CHÍNH: Trò chuyện gần đây + Đã chọn */}
         <div className="flex flex-1 gap-4 overflow-hidden transition-all duration-300">
-          {/* TRÒ CHUYỆN GẦN ĐÂY */}
           <div className="flex-1 overflow-y-auto pr-1 border-r">
             <p className="text-sm font-medium text-gray-600 mb-1">
               Trò chuyện gần đây
             </p>
             {sortedUsers.map((user) => (
               <div
-                key={user.id}
+                key={user._id}
                 className="flex items-center gap-3 py-2 cursor-pointer"
                 onClick={() => toggleUser(user)}
               >
-                <input type="checkbox" checked={isSelected(user.id)} readOnly />
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover"
+                <input
+                  type="checkbox"
+                  checked={isSelected(user._id)}
+                  readOnly
                 />
-                <span>{user.name}</span>
+                {user.profilePic ? (
+                  <img
+                    src={user.profilePic}
+                    alt="avatar"
+                    className="h-11 w-11 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-11 w-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                    {user.fullName
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .join(" ")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
+                <span>{user.fullName}</span>
               </div>
             ))}
           </div>
 
-          {/* ĐÃ CHỌN: chỉ hiển thị khi có user và showSelectedUsers là true */}
-          {selectedUsers.length > 0 && showSelectedUsers && (
+          {selectedUsers.length > 0 && (
             <div className="w-1/2 overflow-y-auto pl-2">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-sm font-medium text-gray-700">
@@ -121,16 +173,27 @@ const CreateGroup = ({ onClose }) => {
               <div className="space-y-2">
                 {selectedUsers.map((user) => (
                   <div
-                    key={user.id}
+                    key={user._id}
                     className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded"
                   >
                     <div className="flex items-center gap-2">
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <span>{user.name}</span>
+                      {user.profilePic ? (
+                        <img
+                          src={user.profilePic}
+                          alt="avatar"
+                          className="h-11 w-11 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-11 w-11 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                          {user.fullName
+                            ?.split(" ")
+                            .map((word) => word[0])
+                            .join(" ")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </div>
+                      )}
+                      <span>{user.fullName}</span>
                     </div>
                     <button onClick={() => toggleUser(user)}>
                       <X className="w-4 h-4 text-gray-500" />
@@ -153,13 +216,13 @@ const CreateGroup = ({ onClose }) => {
             Hủy
           </button>
           <button
-            onClick={() => console.log("Tạo nhóm")}
+            onClick={handleCreateGroup}
             className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 ${
               isCreateGroupDisabled
                 ? "bg-blue-300 cursor-not-allowed opacity-50"
                 : "bg-blue-600"
             }`}
-            disabled={isCreateGroupDisabled} // Vô hiệu hóa nút khi ít hơn 2 người được chọn
+            disabled={isCreateGroupDisabled}
           >
             Tạo nhóm
           </button>

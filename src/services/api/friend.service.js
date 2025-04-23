@@ -65,4 +65,21 @@ export const friendService = {
       throw new Error("Không thể chấp nhận yêu cầu kết bạn");
     }
   },
+
+  getFriends: async () => {
+    try {
+      const response = await API.get(`/friend/list`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error("Không thể lấy danh sách bạn bè");
+    }
+  },
 };

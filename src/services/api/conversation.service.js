@@ -50,7 +50,7 @@ export const getConversationById = async (conversationId) => {
 export const addMembersToGrou = async (conversationId, newMemberIds) => {
   try {
     const response = await API.post(
-      `/conversation/add-members`,
+      `/conversations/add-members`,
       { conversationId, newMemberIds },
       {
         headers: {
@@ -65,5 +65,29 @@ export const addMembersToGrou = async (conversationId, newMemberIds) => {
       throw new Error(error.response.data.message);
     }
     throw new Error("Không thể thêm thành viên vào nhóm");
+  }
+};
+
+export const createGroup = async (formData) => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const token = userData?.token;
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await API.post(`/conversations/createGroup`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error creating group:", error);
+    throw error;
   }
 };
