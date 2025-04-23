@@ -9,9 +9,9 @@ import {
   MoreHorizontal,
   FolderIcon,
   FileIcon,
-  Download,
   SendHorizonal,
   ThumbsUp,
+  Users,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,11 +28,23 @@ import EmojiPickerComponent from "./EmojiPickerComponent";
 
 import { messageService } from "../services/api/message.service";
 import MessageBubble from "../components/MessageBubble";
+import AddMemberGroup from "./AddMemberGroup";
+import GroupManagement from "./GroupManagement";
 
 const ChatInterface = ({ conversation }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [showAddMemberGroup, setShowAddMemberGroup] = useState(false);
+  const [showGroupManagement, setShowGroupManagement] = useState(false);
+
+  const toggleAddMemberGroup = () => {
+    setShowAddMemberGroup(!showAddMemberGroup);
+  };
+
+  const toggleGroupManagement = () => {
+    setShowGroupManagement(!showGroupManagement);
+  };
 
   const scrollRef = useRef(null);
 
@@ -226,13 +238,16 @@ const ChatInterface = ({ conversation }) => {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={toggleAddMemberGroup}>
+            <Users className="h-5 w-5" />
+          </Button>
           <Button variant="ghost" size="icon">
             <MessageSquare className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon">
             <Video className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={toggleGroupManagement}>
             <MoreHorizontal className="h-5 w-5" />
           </Button>
         </div>
@@ -341,6 +356,10 @@ const ChatInterface = ({ conversation }) => {
           </div>
         </div>
       </div>
+      {showAddMemberGroup && <AddMemberGroup onClose={toggleAddMemberGroup} />}
+      {showGroupManagement && (
+        <GroupManagement onClose={toggleGroupManagement} />
+      )}
     </div>
   );
 };
