@@ -65,6 +65,10 @@ const MessageBubble = ({ message, user, getFileExtension }) => {
         onContextMenu={handleContextMenu}
       >
         <div className="bg-blue-50 rounded-lg p-3 max-w-[80%]">
+          {!isSender && (
+            <p className="text-sm text-gray-500">{message.senderId.fullName}</p>
+          )}
+
           {message.messageType === "text" ? (
             <div>
               <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
