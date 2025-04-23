@@ -16,6 +16,7 @@ import { formatUpdatedAt } from "../services/formatDate";
 import { getSocket } from "../services/socket";
 import FriendPage from "./ParentComponentFriend";
 import CreateGroup from "./CreateGroup";
+import GroupAvatar from "./GroupAvatar";
 
 const Sidebar = () => {
   const [chatItems, setChatItems] = useState([]);
@@ -29,6 +30,7 @@ const Sidebar = () => {
     try {
       const conversations = await getConversationList();
       setChatItems(conversations.data);
+      console.log("Conversations:", conversations.data);
       setError(null);
     } catch (err) {
       setError("Failed to load conversations");
@@ -64,15 +66,30 @@ const Sidebar = () => {
     const socket = getSocket();
     if (socket) {
       socket.on("newMessage", (newMessage) => {
-        // Khi có tin nhắn mới, chỉ tải lại cuộc trò chuyện có tin nhắn mới
         fetchConversationById(newMessage.conversationId);
       });
+
       socket.on("friendRequestAccepted", fetchConversations);
+      socket.on("createGroup", (newGroupConversation) => {
+        setChatItems((prevChatItems) => {
+          const updatedChatItems = [newGroupConversation, ...prevChatItems];
+          updatedChatItems.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+          return updatedChatItems;
+        });
+      });
+
+      socket.on("createGroup", (data) => {
+        console.log("Received notification createGroup:", data);
+      });
     }
 
     return () => {
       if (socket) {
         socket.off("newMessage", fetchConversationById);
+        socket.off("friendRequestAccepted", fetchConversations);
+        socket.off("createGroup", fetchConversations);
       }
     };
   }, []);
@@ -158,6 +175,8 @@ const Sidebar = () => {
                     alt="avatar"
                     className="h-12 w-12 rounded-full object-cover"
                   />
+                ) : chat.isGroup ? (
+                  <GroupAvatar chat={chat} />
                 ) : (
                   <div className="h-10 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
                     {chat.name

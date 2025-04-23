@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-
+import GroupAvatar from "./GroupAvatar";
 import { getSocket } from "../services/socket";
 
 import {
@@ -218,6 +218,8 @@ const ChatInterface = ({ conversation }) => {
                 alt="avatar"
                 className="h-12 w-12 rounded-full object-cover"
               />
+            ) : conversation.isGroup ? (
+              <GroupAvatar chat={conversation} />
             ) : (
               <div className="h-10 w-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
                 {conversation.name
