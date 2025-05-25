@@ -94,4 +94,20 @@ export const authService = {
       throw error.response?.data || error.message;
     }
   },
+
+  async updatePassword(oldPassword, newPassword) {
+    try {
+      const response = await API.put(
+        "/auth/update-password",
+        { oldPassword, newPassword },
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Update password error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
+
+
 };
