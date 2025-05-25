@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { Camera } from "lucide-react";
 import { X } from "lucide-react";
@@ -5,6 +6,7 @@ import { authService } from "../services/api/auth.service";
 import PropTypes from "prop-types";
 
 const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
+  const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const user = authService.getCurrentUser().user;
 
   const formatDate = (isoDateStr) => {
@@ -64,7 +66,10 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
           <div className="absolute -bottom-12 left-4 flex items-center ">
             {/* Ảnh đại diện */}
             <div className="relative w-fit">
-              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-300 shadow-md">
+              <div
+                className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-300 shadow-md"
+                onDoubleClick={() => setShowAvatarPopup(true)}
+              >
                 <img
                   src={user.profilePic || "/user.jpg"}
                   alt="Profile"
@@ -140,6 +145,26 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
           <span className="font-semibold text-sm text-black">Cập nhật</span>
         </button>
       </div>
+
+      {/* Popup ảnh đại diện lớn */}
+      {showAvatarPopup && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+          onClick={() => setShowAvatarPopup(false)}
+        >
+          <div
+            className="bg-transparent p-4 rounded-lg shadow-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={user.profilePic || "/user.jpg"}
+              alt="Avatar lớn"
+              className="w-[400px] h-[400px] object-cover rounded-full shadow-lg border-4 border-white"
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

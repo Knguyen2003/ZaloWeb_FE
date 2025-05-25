@@ -309,14 +309,15 @@ const ChatInterface = ({ conversation }) => {
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent
+                align="start"
+                className="z-50 bg-white shadow-md border border-gray-200"
+              >
                 <DropdownMenuItem onClick={() => fileInputRef.current.click()}>
                   <FileIcon className="mr-2 h-4 w-4" />
                   Chọn File
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => folderInputRef.current.click()}
-                >
+                <DropdownMenuItem onClick={() => folderInputRef.current.click()}>
                   <FolderIcon className="mr-2 h-4 w-4" />
                   Chọn Thư mục
                 </DropdownMenuItem>

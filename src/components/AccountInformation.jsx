@@ -14,6 +14,7 @@ import { getSocket } from "../services/socket";
 
 const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
   const [friendStatus, setFriendStatus] = useState(null);
+  const [showAvatarPopup, setShowAvatarPopup] = useState(false);
 
   useEffect(() => {
     const socket = getSocket();
@@ -134,9 +135,8 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
           <div
             className="h-32 bg-cover bg-center relative"
             style={{
-              backgroundImage: `url('${
-                user.coverImage || "https://picsum.photos/200"
-              }')`,
+              backgroundImage: `url('${user.coverImage || "https://picsum.photos/200"
+                }')`,
               backgroundColor: "transparent",
             }}
           ></div>
@@ -144,7 +144,7 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
           {/* Avatar và tên */}
           <div className=" -mt-12">
             <div className="relative flex justify-start">
-              <div className="w-20 h-20 rounded-full border-2 border-white shadow-md overflow-hidden">
+              <div className="w-20 h-20 rounded-full border-2 border-white shadow-md overflow-hidden" onDoubleClick={() => setShowAvatarPopup(true)}>
                 {user.profilePic ? (
                   <img
                     src={user.profilePic}
@@ -166,12 +166,6 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
                 <h4 className="text-base font-semibold mr-1.5">
                   {user.fullName}
                 </h4>
-                <button className="text-blue-600 hover:underline text-sm">
-                  <span className="flex items-center text-sm text-black font-semibold">
-                    <Pencil className="w-3 h-3 text-black hover:text-blue-800" />
-                    _
-                  </span>
-                </button>
               </div>
             </div>
           </div>
@@ -276,6 +270,24 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
             </div>
           </div>
         </div>
+
+        {showAvatarPopup && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
+            onClick={() => setShowAvatarPopup(false)}
+          >
+            <div
+              className="bg-transparent p-4 rounded-lg shadow-none"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={user.profilePic || "/user.jpg"}
+                alt="Avatar lớn"
+                className="w-[400px] h-[400px] object-cover rounded-full shadow-lg border-4 border-white"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
