@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Smartphone } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 import ZaloPasswordReset from "./PasswordReset";
+import { API } from "../config/axios";
 
 const ZaloPasswordRecovery = () => {
   const [phone, setPhone] = useState("");
@@ -43,7 +44,7 @@ const ZaloPasswordRecovery = () => {
 
     try {
       const normalizedPhone = normalizePhoneNumber(phone);
-      const response = await authAPI.post("/auth/forgot-password/request", {
+      const response = await API.post("/auth/forgot-password/request", {
         phoneNumber: normalizedPhone,
         captchaValue: captchaToken,
       });
@@ -143,25 +144,27 @@ const ZaloPasswordRecovery = () => {
           {step === "captcha" ? content[lang].verify : content[lang].continue}
         </button>
 
-        <div className="text-sm text-left text-gray-600 hover:underline cursor-pointer">
+        <div
+          className="text-sm text-left text-gray-600 hover:underline cursor-pointer"
+          onClick={() => window.history.back()}
+        >
           {content[lang].back}
         </div>
+
       </form>
 
       <div className="mt-16 text-sm text-gray-600">
         <span
-          className={`font-semibold cursor-pointer ${
-            lang === "vi" ? "text-[#0068ff]" : "hover:underline"
-          }`}
+          className={`font-semibold cursor-pointer ${lang === "vi" ? "text-[#0068ff]" : "hover:underline"
+            }`}
           onClick={() => setLang("vi")}
         >
           Tiếng Việt
         </span>{" "}
         |{" "}
         <span
-          className={`cursor-pointer ${
-            lang === "en" ? "text-[#0068ff] font-semibold" : "hover:underline"
-          }`}
+          className={`cursor-pointer ${lang === "en" ? "text-[#0068ff] font-semibold" : "hover:underline"
+            }`}
           onClick={() => setLang("en")}
         >
           English

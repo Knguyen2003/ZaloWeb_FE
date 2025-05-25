@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   MessageSquare,
@@ -11,25 +11,48 @@ import {
 import NavItem from "./ui/NavItem";
 
 const MenuHome = ({ onOpenProfileModal }) => {
-  // State để kiểm soát việc hiển thị
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"))?.user;
 
-  // Hàm toggle menu
+  // Thêm ref cho avatar và menu popup
+  const avatarRef = useRef(null);
+  const menuRef = useRef(null);
+
+  // Toggle menu khi click avatar
   const openMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Hàm đóng menu khi nhấn ra ngoài
+  // Đóng menu
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
 
+  // Đóng menu nếu click ra ngoài avatar và popup
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        avatarRef.current &&
+        !avatarRef.current.contains(event.target) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
+        closeMenu();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <aside className="fixed left-0 top-0 h-screen w-16 flex flex-col items-center bg-blue-600 text-white py-4">
+    <aside className="fixed left-0 top-0 h-screen w-16 flex flex-col items-center bg-blue-600 text-white py-4 z-50">
       {/* Avatar - Khi nhấn sẽ toggle menu */}
       <div className="relative">
         <div
+          ref={avatarRef}
           className="w-10 h-10 mb-8 rounded-full overflow-hidden cursor-pointer"
           onClick={openMenu}
         >
@@ -53,8 +76,8 @@ const MenuHome = ({ onOpenProfileModal }) => {
 
         {isMenuOpen && (
           <div
+            ref={menuRef}
             className="absolute ml-14 top-0 w-64 bg-white text-black rounded-lg shadow-lg p-4 z-60"
-            onClick={(e) => e.stopPropagation()} // Ngăn sự kiện click lan ra ngoài
           >
             <div className="flex items-center gap-3 border-b-2 pb-3">
               <div>
@@ -80,7 +103,6 @@ const MenuHome = ({ onOpenProfileModal }) => {
               </a>
             </div>
 
-            {/* Thông báo */}
             <div className="mt-3 text-xs border-t-2 pt-3">
               <a
                 href="/logout"
