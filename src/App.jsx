@@ -10,9 +10,6 @@ import PropTypes from "prop-types";
 import ZaloPasswordRecovery from "./components/PasswordRecovery";
 import ContactSidebar from "./components/ContactSidebar";
 import AccountInformation from "./components/AccountInformation";
-import React, { useEffect } from "react";
-import { initializeSocket } from "./services/socket";
-
 import { useEffect } from "react";
 import { initializeSocket } from "./services/socket";
 

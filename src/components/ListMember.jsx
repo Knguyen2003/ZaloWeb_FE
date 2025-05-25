@@ -42,6 +42,7 @@ const ListMember = ({ onClose, conversation }) => {
   };
 
   const handelLeaveGroup = async (memberId) => {
+    console.log("Xóa thành viên khỏi nhóm", memberId);
     try {
       await removeMemberFromGroup(conversation._id, memberId);
       onClose();
@@ -64,6 +65,8 @@ const ListMember = ({ onClose, conversation }) => {
     };
   }, []);
 
+  console.log("Danh sách thành công ListMember", conversation.participants);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="w-[360px] h-[460px] bg-white rounded-lg shadow-lg p-4">
@@ -80,7 +83,6 @@ const ListMember = ({ onClose, conversation }) => {
             <X size={20} />
           </button>
         </div>
-
         {/* Thêm thành viên */}
         <Button
           className="w-full bg-gray-100 text-sm text-black flex items-center justify-center gap-2 hover:bg-gray-200"
@@ -89,7 +91,6 @@ const ListMember = ({ onClose, conversation }) => {
           <Plus size={16} />
           Thêm thành viên
         </Button>
-
         {/* Danh sách */}
         <p className="text-sm mt-4 mb-2 text-gray-700">
           Danh sách thành viên ({conversation.participants.length})
@@ -123,21 +124,27 @@ const ListMember = ({ onClose, conversation }) => {
                   )}
                 </div>
               </div>
-              <div
-                className="flex justify-end mb-2"
-                onClick={(e) => handleContextMenu(e, m)}
-              >
-                <MoreHorizontal className="text-gray-500" />
-              </div>
-              {!m.isFriend && (
-                <Button className="text-sm bg-blue-100 text-blue-600 hover:bg-blue-200">
-                  Kết bạn
-                </Button>
+              {m._id !== user._id && (
+                <>
+                  <div className="flex justify-end mb-2">
+                    <button
+                      onClick={(e) => handleContextMenu(e, m)}
+                      className="p-2 rounded hover:bg-gray-100"
+                    >
+                      <MoreHorizontal className="text-gray-500 w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {!m.isFriend && (
+                    <Button className="text-sm bg-blue-100 text-blue-600 hover:bg-blue-200">
+                      Kết bạn
+                    </Button>
+                  )}
+                </>
               )}
             </div>
           ))}
         </div>
-
         {/* Menu tùy chỉnh */}
         {menuVisible && (
           <div

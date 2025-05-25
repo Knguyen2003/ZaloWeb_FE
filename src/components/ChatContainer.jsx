@@ -43,6 +43,10 @@ const ChatInterface = ({ conversation }) => {
     setShowAddMemberGroup(!showAddMemberGroup);
   };
 
+  const toggleCreateGroup = () => {
+    alert("Sẽ hiện ra form tạo nhóm");
+  };
+
   const toggleGroupManagement = () => {
     setShowGroupManagement(!showGroupManagement);
   };
@@ -275,7 +279,15 @@ const ChatInterface = ({ conversation }) => {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleAddMemberGroup}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={
+              conversation.isGroup
+                ? toggleAddMemberGroup // nếu là group
+                : toggleCreateGroup // nếu không phải group
+            }
+          >
             <Users className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon">
@@ -284,9 +296,11 @@ const ChatInterface = ({ conversation }) => {
           <Button variant="ghost" size="icon">
             <Video className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggleGroupManagement}>
-            <MoreHorizontal className="h-5 w-5" />
-          </Button>
+          {conversation.isGroup && (
+            <Button variant="ghost" size="icon" onClick={toggleGroupManagement}>
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          )}
         </div>
       </header>
 
