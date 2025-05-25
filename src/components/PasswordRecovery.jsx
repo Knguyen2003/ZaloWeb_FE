@@ -3,6 +3,7 @@ import { Smartphone } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 import ZaloPasswordReset from "./PasswordReset";
 import { API } from "../config/axios";
+import { toast } from "react-toastify";
 
 const ZaloPasswordRecovery = () => {
   const [phone, setPhone] = useState("");
@@ -28,6 +29,20 @@ const ZaloPasswordRecovery = () => {
   const handlePhoneSubmit = (e) => {
     e.preventDefault();
     setError("");
+    const phoneRegex = /^(0[0-9]{9}|\+84[0-9]{9})$/;
+
+    if (!phoneRegex.test(phone)) {
+      toast.error("Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng.", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+      return;
+    }
     setStep("captcha");
   };
 
@@ -150,21 +165,22 @@ const ZaloPasswordRecovery = () => {
         >
           {content[lang].back}
         </div>
-
       </form>
 
       <div className="mt-16 text-sm text-gray-600">
         <span
-          className={`font-semibold cursor-pointer ${lang === "vi" ? "text-[#0068ff]" : "hover:underline"
-            }`}
+          className={`font-semibold cursor-pointer ${
+            lang === "vi" ? "text-[#0068ff]" : "hover:underline"
+          }`}
           onClick={() => setLang("vi")}
         >
           Tiếng Việt
         </span>{" "}
         |{" "}
         <span
-          className={`cursor-pointer ${lang === "en" ? "text-[#0068ff] font-semibold" : "hover:underline"
-            }`}
+          className={`cursor-pointer ${
+            lang === "en" ? "text-[#0068ff] font-semibold" : "hover:underline"
+          }`}
           onClick={() => setLang("en")}
         >
           English

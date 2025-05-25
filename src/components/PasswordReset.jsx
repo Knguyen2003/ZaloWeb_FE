@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
+import { API } from "../config/axios";
+import { toast } from "react-toastify";
 
 const ZaloPasswordReset = ({ phone, lang, tempToken }) => {
   const [otp, setOtp] = useState("");
@@ -47,21 +49,55 @@ const ZaloPasswordReset = ({ phone, lang, tempToken }) => {
   const handleVerifyOTP = async () => {
     try {
       const normalizedPhone = normalizePhoneNumber(phone);
-      const response = await authAPI.post("/auth/forgot-password/verify-otp", {
+      const response = await API.post("/auth/forgot-password/verify-otp", {
         phoneNumber: normalizedPhone,
         otp,
         tempToken,
       });
+      console.log(response.data);
       return response.data.resetToken;
     } catch (err) {
       throw new Error(err.response?.data?.message || "Xác minh OTP thất bại");
     }
   };
 
+  const isValidPassword = (password) => {
+    const regex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{6,32}$/;
+    return regex.test(password);
+  };
+
   const handleResetPassword = async (resetToken) => {
     try {
+      if (!isValidPassword(newPassword)) {
+        toast.error(
+          "Mật khẩu phải chứa chữ cái, số, ký tự đặc biệt, và dài 6-32 ký tự.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          }
+        );
+      }
+      if (newPassword !== confirmPassword) {
+        toast.error(
+          "Mật khẩu và xác nhận mật khẩu không khớp. Vui lòng thử lại.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          }
+        );
+      }
       const normalizedPhone = normalizePhoneNumber(phone);
-      const response = await authAPI.post("/auth/forgot-password/reset", {
+      const response = await API.post("/auth/forgot-password/reset", {
         phoneNumber: normalizedPhone,
         newPassword,
         confirmPassword,
@@ -84,7 +120,6 @@ const ZaloPasswordReset = ({ phone, lang, tempToken }) => {
       const resetToken = await handleVerifyOTP();
       const successMessage = await handleResetPassword(resetToken);
       setSuccess(successMessage);
-      // Đợi một chút để hiển thị thông báo thành công, sau đó chuyển hướng
       setTimeout(() => {
         window.location.href = "/login";
       }, 2000);
