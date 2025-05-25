@@ -5,7 +5,6 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
 const MessageFolder = ({ folderInfo, createdAt }) => {
-  console.log("folderInfo", folderInfo);
   const handleDownload = async () => {
     const zip = new JSZip();
 
