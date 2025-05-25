@@ -16,8 +16,10 @@ import AuthorizationGroup from "./AuthorizationGroup";
 import UpdateGroup from "./UpdateGroup";
 import GroupAvatar from "./GroupAvatar";
 import ChangeLeaderGroup from "./ChangeLeaderGroup";
+import ConfirmDialog from "./ConfirmDialog"; // import confirm dialog mới
 import { Avatar } from "@/components/ui/avatar";
 import { leaveGroup, deleteGroup } from "../services/api/conversation.service";
+import { toast } from "react-toastify";
 
 const GroupManagement = ({ onClose, conversation }) => {
   const user = JSON.parse(localStorage.getItem("user")).user;
@@ -26,6 +28,12 @@ const GroupManagement = ({ onClose, conversation }) => {
   const [showAuthorizationGroup, setShowAuthorizationGroup] = useState(false);
   const [showUpdateGroup, setShowUpdateGroup] = useState(false);
   const [showChangeLeader, setShowChangeLeader] = useState(false);
+
+  // trạng thái mới để hiển thị confirm dialog rời nhóm
+  const [showConfirmLeave, setShowConfirmLeave] = useState(false);
+
+  // lưu newLeaderId tạm (thường là null khi không có đổi trưởng nhóm)
+  const [pendingNewLeaderId, setPendingNewLeaderId] = useState(null);
 
   const toggleUpdateModel = () => {
     setUpdateModel(!showUpdateModel);
@@ -54,16 +62,31 @@ const GroupManagement = ({ onClose, conversation }) => {
     alert("Đã sao chép liên kết nhóm!");
   };
 
-  const handleLeaveGroup = async (newLeaderId = null) => {
+  // Hàm xử lý khi user nhấn rời nhóm
+  // thay vì confirm cũ, giờ chuyển sang show confirm dialog
+  const handleRequestLeaveGroup = (newLeaderId = null) => {
+    if (conversation.groupLeader === user._id && !newLeaderId) {
+      setShowChangeLeader(true);
+      return;
+    }
+    setPendingNewLeaderId(newLeaderId);
+    setShowConfirmLeave(true);
+  };
+
+  // Xử lý khi user xác nhận rời nhóm trong confirm dialog
+  const handleConfirmLeaveGroup = async () => {
+    setShowConfirmLeave(false);
     try {
-      if (conversation.groupLeader === user._id && !newLeaderId) {
-        setShowChangeLeader(!showChangeLeader);
-        return;
-      }
-      const confirmLeave = window.confirm("Bạn có chắc chắn muốn rời nhóm?");
-      if (!confirmLeave) return;
-      await leaveGroup(conversation._id, newLeaderId);
-      alert("Bạn đã rời nhóm thành công!");
+      await leaveGroup(conversation._id, pendingNewLeaderId);
+      toast.error("Bạn đã rời nhóm thành công!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
       onClose();
     } catch (error) {
       console.error("Leave group error:", error);
@@ -71,8 +94,13 @@ const GroupManagement = ({ onClose, conversation }) => {
     }
   };
 
+  const handleCancelLeaveGroup = () => {
+    setShowConfirmLeave(false);
+    setPendingNewLeaderId(null);
+  };
+
   const handleSelectNewLeader = (user) => {
-    handleLeaveGroup(user._id);
+    handleRequestLeaveGroup(user._id);
     toggleChangeLeader();
   };
 
@@ -220,7 +248,7 @@ const GroupManagement = ({ onClose, conversation }) => {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => handleLeaveGroup(null)}
+                onClick={() => handleRequestLeaveGroup(null)}
               >
                 <LogOut className="mr-2" size={16} />
                 Rời nhóm
@@ -238,7 +266,7 @@ const GroupManagement = ({ onClose, conversation }) => {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => handleLeaveGroup(null)}
+              onClick={() => handleRequestLeaveGroup(null)}
             >
               <LogOut className="mr-2" size={16} />
               Rời nhóm
@@ -246,7 +274,8 @@ const GroupManagement = ({ onClose, conversation }) => {
           )}
         </div>
       </div>
-      {/* Hiển thị */}
+
+      {/* Hiển thị các modal/ dialog khác */}
       {showUpdateModel && <GroupManagement onClose={toggleUpdateModel} />}
       {showListMember && (
         <ListMember onClose={toggleListMember} conversation={conversation} />
@@ -260,6 +289,16 @@ const GroupManagement = ({ onClose, conversation }) => {
           onClose={toggleChangeLeader}
           onSelect={handleSelectNewLeader}
           conversation={conversation}
+        />
+      )}
+
+      {/* Confirm dialog rời nhóm */}
+      {showConfirmLeave && (
+        <ConfirmDialog
+          title="Xác nhận rời nhóm"
+          message="Bạn có chắc chắn muốn rời nhóm?"
+          onConfirm={handleConfirmLeaveGroup}
+          onCancel={handleCancelLeaveGroup}
         />
       )}
     </div>

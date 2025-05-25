@@ -117,6 +117,7 @@ const ChatInterface = ({ conversation }) => {
       );
     } finally {
       setIsUploading(false);
+      fileInputRef.current.value = null;
     }
   };
 
@@ -159,6 +160,7 @@ const ChatInterface = ({ conversation }) => {
       });
     } finally {
       setIsUploading(false);
+      folderInputRef.current.value = null;
     }
   };
 
@@ -179,6 +181,7 @@ const ChatInterface = ({ conversation }) => {
       console.error("Lỗi khi gửi file:", error.message);
     } finally {
       setIsUploading(false);
+      imgInputRef.current.value = null;
     }
   };
 

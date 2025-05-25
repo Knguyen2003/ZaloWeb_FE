@@ -11,7 +11,7 @@ import {
 import NavItem from "./ui/NavItem";
 import { authService } from "../services/api/auth.service";
 
-const MenuHome = ({ onOpenProfileModal }) => {
+const MenuHome = ({ onOpenProfileModal, onOpenChangePasswordModal }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"))?.user;
 
@@ -113,6 +113,16 @@ const MenuHome = ({ onOpenProfileModal }) => {
 
             <div className="mt-3 text-xs border-t-2 pt-3">
               <button
+                onClick={() => {
+                  closeMenu();
+                  onOpenChangePasswordModal();
+                }}
+                className="flex items-center gap-2 text-sm hover:bg-gray-100 p-2 rounded w-full text-left"
+              >
+                Cập nhật mật khẩu
+              </button>
+
+              <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-sm hover:bg-gray-100 p-2 rounded w-full text-left"
               >
@@ -146,6 +156,7 @@ const MenuHome = ({ onOpenProfileModal }) => {
 
 MenuHome.propTypes = {
   onOpenProfileModal: PropTypes.func.isRequired,
+  onOpenChangePasswordModal: PropTypes.func,
 };
 
 export default MenuHome;

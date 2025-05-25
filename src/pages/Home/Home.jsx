@@ -7,6 +7,7 @@ import MenuHome from "../../components/MenuHome";
 import ProfileModal from "../../components/ProfileModal";
 import UpdateModal from "../../components/UpdateModal";
 import AvatarChange from "../../components/AvatarChange";
+import ChangePassword from "../../components/ChangePassword";
 
 const HomePage = () => {
   const { selectedUser } = useUser();
@@ -14,6 +15,10 @@ const HomePage = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isAvatarChangeOpen, setIsAvatarChangeOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+
+  const openChangePasswordModal = () => setIsChangePasswordOpen(true);
+  const closeChangePasswordModal = () => setIsChangePasswordOpen(false);
 
   const openProfileModal = () => setIsProfileModalOpen(true);
   const closeProfileModal = () => setIsProfileModalOpen(false);
@@ -44,7 +49,10 @@ const HomePage = () => {
     <div className="h-screen flex">
       {/* Sidebar chiếm 5% chiều ngang, 100% chiều dọc */}
       <div className="w-[60px] h-full bg-gray-200">
-        <MenuHome onOpenProfileModal={openProfileModal} />
+        <MenuHome
+          onOpenProfileModal={openProfileModal}
+          onOpenChangePasswordModal={openChangePasswordModal}
+        />
       </div>
 
       {/* Sidebar chiếm 30% chiều ngang, 100% chiều dọc */}
@@ -81,6 +89,12 @@ const HomePage = () => {
         isOpen={isAvatarChangeOpen}
         onClose={closeAvatarChange}
         onReturn={returnProfileModel_2}
+      />
+
+      {/* Change Password Component */}
+      <ChangePassword
+        isOpen={isChangePasswordOpen}
+        onClose={closeChangePasswordModal}
       />
     </div>
   );
