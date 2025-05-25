@@ -10,6 +10,8 @@ import PropTypes from "prop-types";
 import ZaloPasswordRecovery from "./components/PasswordRecovery";
 import ContactSidebar from "./components/ContactSidebar";
 import AccountInformation from "./components/AccountInformation";
+import React, { useEffect } from "react";
+import { initializeSocket } from "./services/socket";
 
 import { useEffect } from "react";
 import { initializeSocket } from "./services/socket";
@@ -31,7 +33,6 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -41,7 +42,6 @@ function App() {
       }
     }
   }, []);
-
   return (
     <Router>
       <div className="App">

@@ -9,6 +9,8 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const user = authService.getCurrentUser().user;
 
+  console.log(user);
+
   const formatDate = (isoDateStr) => {
     const date = new Date(isoDateStr);
     return date.toLocaleDateString("vi-VN", {
@@ -55,10 +57,9 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
           <div
             className="h-36 bg-cover bg-center"
             style={{
-              backgroundImage: user.coverImage
-                ? `url('${user.coverImage}')`
-                : "none",
-              backgroundColor: user.coverImage ? "transparent" : "#1E90FF",
+              backgroundImage: `url('${
+                user.coverImage || "/public/backgroud.jpg"
+              }')`,
             }}
           ></div>
 
@@ -70,11 +71,22 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
                 className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-300 shadow-md"
                 onDoubleClick={() => setShowAvatarPopup(true)}
               >
-                <img
-                  src={user.profilePic || "/user.jpg"}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
+                {user.profilePic ? (
+                  <img
+                    src={user.profilePic}
+                    alt="Profile"
+                    className="h-11 w-11 aspect-square rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-blue-500 text-white flex items-center justify-center text-2xl font-semibold">
+                    {user.fullName
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
               </div>
               <button
                 className="absolute bottom-0 left-14 bg-white p-1 rounded-full shadow-md cursor-pointer hover:bg-gray-200 border"
@@ -164,7 +176,6 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

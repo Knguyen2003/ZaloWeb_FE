@@ -37,6 +37,7 @@ const ChatInterface = ({ conversation }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [showAddMemberGroup, setShowAddMemberGroup] = useState(false);
   const [showGroupManagement, setShowGroupManagement] = useState(false);
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
 
   const toggleAddMemberGroup = () => {
     setShowAddMemberGroup(!showAddMemberGroup);
@@ -298,6 +299,8 @@ const ChatInterface = ({ conversation }) => {
             group={conversation.isGroup}
             user={user}
             getFileExtension={getFileExtension}
+            selectedMessageId={selectedMessageId}
+            setSelectedMessageId={setSelectedMessageId}
           />
         ))}
       </div>
@@ -354,7 +357,9 @@ const ChatInterface = ({ conversation }) => {
                   <FileIcon className="mr-2 h-4 w-4" />
                   Chọn File
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => folderInputRef.current.click()}>
+                <DropdownMenuItem
+                  onClick={() => folderInputRef.current.click()}
+                >
                   <FolderIcon className="mr-2 h-4 w-4" />
                   Chọn Thư mục
                 </DropdownMenuItem>

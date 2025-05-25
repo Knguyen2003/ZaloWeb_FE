@@ -26,13 +26,10 @@ export const initializeSocket = (userId) => {
 
     socket.on("friendRequest", (data) => {
       console.log("Received friend request:", data);
-      // Xử lý thông báo lời mời kết bạn
-      // Ví dụ: dispatch action để cập nhật UI
     });
 
     socket.on("friendRequestAccepted", (data) => {
       console.log("Friend request accepted:", data);
-      // Xử lý thông báo chấp nhận kết bạn
     });
 
     socket.on("forceLogout", (data) => {

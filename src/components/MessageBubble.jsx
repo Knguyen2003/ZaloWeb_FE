@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FolderIcon, Download } from "lucide-react";
+import { FolderIcon, Download, Forward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +11,14 @@ import MessageImage from "./MessageImage";
 import MessageFolder from "./MessageFolder";
 import { messageService } from "../services/api/message.service";
 
-const MessageBubble = ({ message, user, getFileExtension, group }) => {
+const MessageBubble = ({
+  message,
+  user,
+  getFileExtension,
+  group,
+  selectedMessageId,
+  setSelectedMessageId,
+}) => {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
@@ -19,6 +26,12 @@ const MessageBubble = ({ message, user, getFileExtension, group }) => {
   });
   const isSender = message.senderId?._id === user._id;
   const messageRef = useRef(null);
+
+  //Hiển thị nút chuyển tiếp
+  const handleMessageClick = (e) => {
+    e.stopPropagation();
+    setSelectedMessageId(message._id);
+  };
 
   // Thu hồi tin nhắn
   const handleRecallMessage = async () => {
@@ -62,9 +75,24 @@ const MessageBubble = ({ message, user, getFileExtension, group }) => {
       <div
         ref={messageRef}
         className={`flex ${isSender ? "justify-end" : "justify-start"}`}
-        onContextMenu={handleContextMenu}
       >
-        <div className="bg-blue-50 rounded-lg p-3 max-w-[90%]">
+        {selectedMessageId === message._id &&
+          isSender &&
+          message.status !== "recalled" && (
+            <div className="flex flex-col justify-end">
+              <div className="flex flex-row gap-2">
+                <Button variant="ghost" size="icon">
+                  <Forward className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+        <div
+          className="bg-blue-50 rounded-lg p-3 max-w-[90%]"
+          onContextMenu={handleContextMenu}
+          onClick={handleMessageClick}
+        >
           {!isSender && group && (
             <p className="text-sm text-gray-500">{message.senderId.fullName}</p>
           )}
@@ -190,6 +218,18 @@ const MessageBubble = ({ message, user, getFileExtension, group }) => {
             />
           ) : null}
         </div>
+
+        {selectedMessageId === message._id &&
+          isSender === false &&
+          message.status !== "recalled" && (
+            <div className="flex flex-col justify-end">
+              <div className="flex flex-row gap-2">
+                <Button variant="ghost" size="icon">
+                  <Forward className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
       </div>
 
       {/* Context Menu xuất hiện tại vị trí chuột */}
@@ -204,10 +244,12 @@ const MessageBubble = ({ message, user, getFileExtension, group }) => {
             }}
             className="bg-white border rounded-md shadow-lg"
           >
-            <DropdownMenuItem onClick={handleDeleteForMe}>
-              Chuyển tiếp tin nhắn
-            </DropdownMenuItem>
-            {isSender && (
+            {message.status !== "recalled" && (
+              <DropdownMenuItem onClick={handleDeleteForMe}>
+                Chia sẻ
+              </DropdownMenuItem>
+            )}
+            {isSender && message.status !== "recalled" && (
               <DropdownMenuItem
                 onClick={handleRecallMessage}
                 className="text-red-500"
