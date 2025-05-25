@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { X, Camera, Search } from "lucide-react";
+import { X, Camera, Search, CheckCircle } from "lucide-react";
 import { friendService } from "../services/api/friend.service";
 import { createGroup } from "../services/api/conversation.service";
+import { getSocket } from "../services/socket";
 
 const CreateGroup = ({ onClose }) => {
   const [groupName, setGroupName] = useState("");
@@ -30,21 +31,91 @@ const CreateGroup = ({ onClose }) => {
       return [...prev, user];
     });
   };
+  const [isCreating, setIsCreating] = useState(false);
+  const [createSuccess, setCreateSuccess] = useState(false);
 
   const handleCreateGroup = async () => {
+    if (isCreating) return; // Prevent duplicate submissions
+
+    setIsCreating(true);
     try {
+      // Get current user ID
+      let currentUser = null;
+      try {
+        const userData = JSON.parse(localStorage.getItem("user"));
+        currentUser = userData?.user?._id;
+        if (!currentUser) {
+          throw new Error("Không tìm thấy thông tin người dùng");
+        }
+      } catch (error) {
+        console.error("Error getting current user:", error);
+        throw new Error("Vui lòng đăng nhập lại để tạo nhóm");
+      }
+      
+      // Prepare participant IDs
       const participantIds = selectedUsers.map((user) => user._id);
+      
+      // Add notification sound
+      const playNotificationSound = () => {
+        try {
+          const audio = new Audio("/message-notification.mp3");
+          audio.volume = 0.3;
+          audio.play().catch(e => console.log("Audio playback prevented by browser"));
+        } catch (error) {
+          console.log("Notification sound unavailable");
+        }
+      };
+      
+      // Build form data
       const formData = new FormData();
-      formData.append("groupName", groupName);
+      formData.append("groupName", groupName || `Nhóm ${new Date().toLocaleDateString('vi-VN')}`);
       formData.append("participantIds", JSON.stringify(participantIds));
+      
       if (avatarFile) {
         formData.append("groupAvatar", avatarFile);
       }
+      
+      // Call API to create group
       const response = await createGroup(formData);
-      onClose();
+      console.log("✅ Group created successfully:", response);
+      
+      // Show success animation
+      setCreateSuccess(true);
+      playNotificationSound();
+      
+      // Get the group data from response
+      const groupData = response.data;
+      
+      // Emit socket event for real-time updates to all participants
+      const socket = getSocket();
+      if (socket) {
+        // Add the current user to participants if not already included
+        const allParticipants = [
+          ...participantIds,
+          currentUser
+        ].filter((v, i, a) => a.indexOf(v) === i); // Remove duplicates
+        
+        const groupDataWithCurrentUser = {
+          ...groupData,
+          participants: allParticipants.map(id => ({ _id: id }))
+        };
+        
+        // Emit a socket event to ensure all clients get updated
+        socket.emit("clientCreateGroup", groupDataWithCurrentUser);
+        console.log("📡 Emitted clientCreateGroup event to notify all participants");
+      } else {
+        console.warn("⚠️ Socket not available, real-time updates may be delayed");
+      }
+      
+      // Close modal after success animation
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
-      console.error("Lỗi khi tạo nhóm:", error.message);
+      console.error("❌ Error creating group:", error.message);
       alert("Không thể tạo nhóm. Vui lòng thử lại.");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -202,28 +273,44 @@ const CreateGroup = ({ onClose }) => {
               </div>
             </div>
           )}
-        </div>
+        </div>        <hr className="border-t border-gray-300 w-full my-4" />
 
-        <hr className="border-t border-gray-300 w-full my-4" />
+        {/* Success Message Overlay */}
+        {createSuccess && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-10 rounded-lg">
+            <div className="text-green-500 animate-bounce mb-4">
+              <CheckCircle size={60} />
+            </div>
+            <p className="text-lg font-medium">Nhóm đã được tạo thành công!</p>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex justify-end gap-2 mt-auto">
           <button
-            className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+            className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
             onClick={onClose}
+            disabled={isCreating}
           >
             Hủy
           </button>
           <button
             onClick={handleCreateGroup}
-            className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 ${
-              isCreateGroupDisabled
+            className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 ${
+              isCreateGroupDisabled || isCreating
                 ? "bg-blue-300 cursor-not-allowed opacity-50"
                 : "bg-blue-600"
             }`}
-            disabled={isCreateGroupDisabled}
+            disabled={isCreateGroupDisabled || isCreating}
           >
-            Tạo nhóm
+            {isCreating ? (
+              <>
+                <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Đang tạo...
+              </>
+            ) : (
+              "Tạo nhóm"
+            )}
           </button>
         </div>
       </div>

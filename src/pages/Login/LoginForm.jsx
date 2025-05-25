@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../services/api/auth.service";
+import { initializeSocket } from "../../services/socket";
 
 function LoginForm() {
   const [language, setLanguage] = useState("vi");
@@ -48,11 +49,16 @@ function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault(); //ngăn trình duyệt tải lại trang
     setError("");
-    setLoading(true);
-    try {
+    setLoading(true);    try {
       const userData = await authService.login(phoneNumber, password);
 
       if (userData) {
+        // Initialize socket connection after successful login
+        if (userData.user && userData.user._id) {
+          console.log("🔌 Initializing socket connection after login");
+          initializeSocket(userData.user._id);
+        }
+        
         navigate("/home", { replace: true });
       } else {
         console.error("⚠ Không có dữ liệu user, không thể điều hướng");
@@ -115,9 +121,7 @@ function LoginForm() {
             {loading ? "Đang xử lý..." : t.loginButton}
           </button>
 
-          {error && <div className="text-red-500 text-center">{error}</div>}
-
-          <div className="flex flex-col items-center space-y-2 text-sm">
+          {error && <div className="text-red-500 text-center">{error}</div>}          <div className="flex flex-col items-center space-y-2 text-sm">
             <a
               href="#"
               onClick={(e) => {
@@ -131,6 +135,19 @@ function LoginForm() {
             <a href="#" className="text-blue-600 hover:underline">
               {t.loginWithQR}
             </a>
+            <div className="pt-2 text-gray-600">
+              {language === 'vi' ? "Chưa có tài khoản? " : "Don't have an account? "}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/signup");
+                }}
+                className="text-blue-600 hover:underline"
+              >
+                {language === 'vi' ? "Đăng ký" : "Sign up"}
+              </a>
+            </div>
           </div>
         </form>
       </div>

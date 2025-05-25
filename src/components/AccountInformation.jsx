@@ -14,11 +14,6 @@ import { getSocket } from "../services/socket";
 
 const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
   const [friendStatus, setFriendStatus] = useState(null);
-  const [showAvatarPopup, setShowAvatarPopup] = useState(false);
-
-  const userLogin = JSON.parse(localStorage.getItem("user"));
-
-  console.log("userLogin", userLogin.user._id);
 
   useEffect(() => {
     const socket = getSocket();
@@ -139,8 +134,9 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
           <div
             className="h-32 bg-cover bg-center relative"
             style={{
-              backgroundImage: `url('${user.coverImage || "https://picsum.photos/200"
-                }')`,
+              backgroundImage: `url('${
+                user.coverImage || "https://picsum.photos/200"
+              }')`,
               backgroundColor: "transparent",
             }}
           ></div>
@@ -148,7 +144,7 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
           {/* Avatar và tên */}
           <div className=" -mt-12">
             <div className="relative flex justify-start">
-              <div className="w-20 h-20 rounded-full border-2 border-white shadow-md overflow-hidden" onDoubleClick={() => setShowAvatarPopup(true)}>
+              <div className="w-20 h-20 rounded-full border-2 border-white shadow-md overflow-hidden">
                 {user.profilePic ? (
                   <img
                     src={user.profilePic}
@@ -170,23 +166,50 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
                 <h4 className="text-base font-semibold mr-1.5">
                   {user.fullName}
                 </h4>
+                <button className="text-blue-600 hover:underline text-sm">
+                  <span className="flex items-center text-sm text-black font-semibold">
+                    <Pencil className="w-3 h-3 text-black hover:text-blue-800" />
+                    _
+                  </span>
+                </button>
               </div>
             </div>
           </div>
 
           {/* Nút Kết bạn / Nhắn tin */}
+          <div className="flex flex-col justify-center items-center gap-2 mt-1 px-4">
+            {/* Khi chưa có friendStatus (null) */}
 
-          {userLogin.user._id !== user._id && (
-            <div className="flex flex-col justify-center items-center gap-2 mt-1 px-4">
-              {/* Khi chưa có friendStatus (null) */}
+            {!friendStatus && (
+              <div
+                className="flex justify-center gap-2 w-full"
+                onClick={handleSendFriendRequest}
+              >
+                <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100">
+                  Kết bạn
+                </button>
+                <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
+                  Nhắn tin
+                </button>
+              </div>
+            )}
 
-              {!friendStatus && (
-                <div
-                  className="flex justify-center gap-2 w-full"
-                  onClick={handleSendFriendRequest}
-                >
-                  <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100">
-                    Kết bạn
+            {/* Khi đã là bạn bè */}
+            {friendStatus?.status === "accepted" && (
+              <button className="w-full py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
+                Nhắn tin
+              </button>
+            )}
+
+            {/* Khi đang chờ xác nhận và người dùng hiện tại là người được gửi lời mời (người nhận) */}
+            {friendStatus?.status === "pending" &&
+              friendStatus?.targetUser !== user._id && (
+                <div className="flex justify-center gap-2 w-full">
+                  <button
+                    className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100"
+                    onClick={handelAcceptFriendRequest}
+                  >
+                    Chấp nhận
                   </button>
                   <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
                     Nhắn tin
@@ -194,48 +217,24 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
                 </div>
               )}
 
-              {/* Khi đã là bạn bè */}
-              {friendStatus?.status === "accepted" && (
-                <button className="w-full py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
-                  Nhắn tin
-                </button>
-              )}
-
-              {/* Khi đang chờ xác nhận và người dùng hiện tại là người được gửi lời mời (người nhận) */}
-              {friendStatus?.status === "pending" &&
-                friendStatus?.targetUser !== user._id && (
+            {/* Khi đang chờ xác nhận và người dùng hiện tại là người đã gửi lời mời */}
+            {friendStatus?.status === "pending" &&
+              friendStatus?.targetUser === user._id && (
+                <>
+                  <p className="text-xs text-gray-500 text-center">
+                    Bạn đã gửi lời mời kết bạn và đang chờ người này xác nhận
+                  </p>
                   <div className="flex justify-center gap-2 w-full">
-                    <button
-                      className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100"
-                      onClick={handelAcceptFriendRequest}
-                    >
-                      Chấp nhận
-                    </button>
                     <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
                       Nhắn tin
                     </button>
+                    <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100 text-red-500 hover:text-red-600">
+                      Hủy lời mời
+                    </button>
                   </div>
-                )}
-
-              {/* Khi đang chờ xác nhận và người dùng hiện tại là người đã gửi lời mời */}
-              {friendStatus?.status === "pending" &&
-                friendStatus?.targetUser === user._id && (
-                  <>
-                    <p className="text-xs text-gray-500 text-center">
-                      Bạn đã gửi lời mời kết bạn và đang chờ người này xác nhận
-                    </p>
-                    <div className="flex justify-center gap-2 w-full">
-                      <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
-                        Nhắn tin
-                      </button>
-                      <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100 text-red-500 hover:text-red-600">
-                        Hủy lời mời
-                      </button>
-                    </div>
-                  </>
-                )}
-            </div>
-          )}
+                </>
+              )}
+          </div>
 
           <div className="w-full border-t-4 mt-1 border-gray-300"></div>
 
@@ -277,24 +276,6 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
             </div>
           </div>
         </div>
-
-        {showAvatarPopup && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
-            onClick={() => setShowAvatarPopup(false)}
-          >
-            <div
-              className="bg-transparent p-4 rounded-lg shadow-none"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={user.profilePic || "/user.jpg"}
-                alt="Avatar lớn"
-                className="w-[400px] h-[400px] object-cover rounded-full shadow-lg border-4 border-white"
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

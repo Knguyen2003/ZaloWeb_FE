@@ -114,8 +114,8 @@ export const messageService = {
 
   async deleteMessage(messageId) {
     try {
-      const response = await API.post(
-        `/messages/delete-message`,
+      const response = await axios.post(
+        `${API_URL}/messages/delete-message`,
         { messageId },
         {
           headers: {

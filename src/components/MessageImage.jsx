@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Download } from "lucide-react";
 
 const formatBytes = (bytes) => {
   if (bytes === 0) return "0 KB";
@@ -50,62 +49,71 @@ const MessageImage = ({ message, isSender }) => {
   }, [message.fileInfo.fileUrl]);
 
   return (
-    <div className="w-fit">
-      {/* Ảnh chính */}
-      <img
-        src={message.fileInfo.fileUrl}
-        alt={message.fileInfo.fileName}
-        className="w-full max-w-xs rounded-md object-cover mb-2"
-        onDoubleClick={handleImageDoubleClick}
-      />
-      {isZoomed && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          {/* Nút đóng */}
-          <button
-            onClick={closeZoom}
-            className="absolute top-4 right-4 text-white text-3xl font-bold hover:text-red-400 transition"
-            title="Đóng"
-          >
-            ×
-          </button>
+    <div
+      className={`flex flex-col gap-1 max-w-[100%] h-[700px]${
+        isSender ? "ml-auto items-end" : "mr-auto items-start"
+      }`}
+    >
+      <div
+        className={`rounded-xl overflow-hidden p-2 shadow-sm border ${
+          isSender ? "bg-blue-100" : "bg-gray-100"
+        }`}
+      >
+        {/* Ảnh chính */}
+        <img
+          src={message.fileInfo.fileUrl}
+          alt={message.fileInfo.fileName}
+          className="w-full max-w-xs rounded-md object-cover mb-2"
+          onDoubleClick={handleImageDoubleClick}
+        />
+        {isZoomed && (
+          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            {/* Nút đóng */}
+            <button
+              onClick={closeZoom}
+              className="absolute top-4 right-4 text-white text-3xl font-bold hover:text-red-400 transition"
+              title="Đóng"
+            >
+              ×
+            </button>
 
-          {/* Ảnh phóng to */}
-          <img
-            src={message.fileInfo.fileUrl}
-            alt="Zoomed"
-            className="max-w-full max-h-full rounded shadow-lg"
-          />
-        </div>
-      )}
-
-      {/* Thông tin file */}
-      <div>
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 flex items-center justify-center">
+            {/* Ảnh phóng to */}
             <img
-              src="https://cdn-icons-png.flaticon.com/512/337/337940.png"
-              className="w-12 h-12"
-              alt="icon"
+              src={message.fileInfo.fileUrl}
+              alt="Zoomed"
+              className="max-w-full max-h-full rounded shadow-lg"
             />
           </div>
-          <div className="w-full">
-            <div className="font-medium">{message.fileInfo.fileName}</div>
-            <div className="flex items-center justify-between ">
-              <div className="text-xs text-muted-foreground mr-8 mt-3">
+        )}
+
+        {/* Thông tin file */}
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <div className="flex items-center gap-2">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/337/337940.png"
+              className="w-6 h-6"
+              alt="icon"
+            />
+            <div>
+              <div className="font-medium">{message.fileInfo.fileName}</div>
+              <div className="text-xs text-gray-600">
                 {formatBytes(message.fileInfo.fileSize)}{" "}
                 {isDownloaded && (
-                  <span className="text-green-600 font-medium ml-2">
-                    ✓ Đã có trên máy
-                  </span>
+                  <span className="text-green-600 ml-1">● Đã có trên máy</span>
                 )}
               </div>
-              <button onClick={handleDownload} title="Tải xuống">
-                <Download className="h-5 w-5 hover:text-blue-600" />
-              </button>
             </div>
           </div>
+
+          {/* Nút tải về */}
+          <button
+            onClick={handleDownload}
+            className="text-gray-600 hover:text-gray-900 transition"
+            title="Tải xuống"
+          >
+            ⬇️
+          </button>
         </div>
-        {/* Nút tải về */}
       </div>
 
       {/* Thời gian gửi */}

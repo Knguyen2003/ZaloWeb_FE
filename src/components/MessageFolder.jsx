@@ -23,60 +23,44 @@ const MessageFolder = ({ folderInfo, createdAt }) => {
     }
   };
 
-  function totalCapacity() {
-    const tong = folderInfo.files.reduce((sum, file) => {
-      return sum + (file.fileSize || 0);
-    }, 0);
-
-    return tong;
-  }
-
   return (
-    <div className="w-fit">
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 flex items-center justify-center">
-          <span className="text-4xl">📁</span>
-        </div>
+    <div className="flex bg-white rounded-xl border p-4 gap-4 items-center shadow-sm w-fit">
+      <div className="flex items-center gap-3">
+        <span className="text-4xl">📁</span>
 
-        <div>
-          <p className="font-medium text-sm truncate">
+        <div className="flex flex-col">
+          <span className="font-medium text-gray-900 text-base">
             {folderInfo.folderName}
-          </p>
-          <div className="flex items-center justify-between ">
-            <span className="text-xs text-muted-foreground mr-8">
-              {totalCapacity()} KB
-              <span className="text-green-600 font-medium ml-2">
-                ✓ Đã có trên máy
-              </span>
-            </span>
-            {/* NUT DOWNLOAD */}
-            <span className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => alert("Mở thư mục")}
-                className="hover:bg-gray-100"
-              >
-                <Folder className="w-5 h-5  hover:text-blue-600" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleDownload}
-                className="hover:bg-gray-100"
-              >
-                <Download className="w-5 h-5  hover:text-blue-600" />
-              </Button>
-            </span>
+          </span>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span className="text-green-600 font-medium">✓ Đã có trên máy</span>
           </div>
+          <span className="text-xs text-gray-400 mt-1">
+            {new Date(createdAt).toLocaleTimeString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
         </div>
       </div>
-      <span className="text-xs text-gray-500">
-        {new Date(createdAt).toLocaleTimeString("vi-VN", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </span>
+      <div className="ml-auto flex gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => alert("Mở thư mục")}
+          className="hover:bg-gray-100"
+        >
+          <Folder className="w-5 h-5 text-gray-600" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleDownload}
+          className="hover:bg-gray-100"
+        >
+          <Download className="w-5 h-5 text-gray-600" />
+        </Button>
+      </div>
     </div>
   );
 };

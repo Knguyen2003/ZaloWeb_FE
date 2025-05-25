@@ -2,6 +2,36 @@ import { API } from "../../config/axios";
 import { initializeSocket, disconnectSocket } from "../../services/socket";
 
 export const authService = {
+  async requestOTP(phoneNumber) {
+    try {
+      const response = await API.post("/auth/send-otp", { phoneNumber });
+      return response.data;
+    } catch (error) {
+      console.error("OTP request error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async verifyOTP(phoneNumber, otp) {
+    try {
+      const response = await API.post("/auth/verify-otp", { phoneNumber, otp });
+      return response.data;
+    } catch (error) {
+      console.error("OTP verification error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async signup(userData) {
+    try {
+      const response = await API.post("/auth/signup", userData);
+      return response.data;
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
+
   async login(phoneNumber, password) {
     try {
       const response = await API.post(
@@ -38,6 +68,7 @@ export const authService = {
           withCredentials: true,
         }
       );
+
       localStorage.removeItem("user");
       disconnectSocket();
       window.location.href = "/login";

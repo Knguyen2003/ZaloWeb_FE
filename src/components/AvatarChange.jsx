@@ -15,7 +15,8 @@ const AvatarChange = ({ isOpen, onClose, onReturn }) => {
       try {
         setIsLoading(true); // 👈 Bắt đầu loading
         await authService.updateAvatar(file);
-        onReturn();
+        toast.success("Cập nhật ảnh thành công");
+        onClose();
       } catch (err) {
         toast.error("❌ Lỗi khi cập nhật ảnh");
         console.error(err);

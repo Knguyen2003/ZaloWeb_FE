@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Smartphone } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
 import ZaloPasswordReset from "./PasswordReset";
-import { API } from "../config/axios";
-import { toast } from "react-toastify";
 
 const ZaloPasswordRecovery = () => {
   const [phone, setPhone] = useState("");
@@ -29,20 +27,6 @@ const ZaloPasswordRecovery = () => {
   const handlePhoneSubmit = (e) => {
     e.preventDefault();
     setError("");
-    const phoneRegex = /^(0[0-9]{9}|\+84[0-9]{9})$/;
-
-    if (!phoneRegex.test(phone)) {
-      toast.error("Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-      return;
-    }
     setStep("captcha");
   };
 
@@ -59,7 +43,7 @@ const ZaloPasswordRecovery = () => {
 
     try {
       const normalizedPhone = normalizePhoneNumber(phone);
-      const response = await API.post("/auth/forgot-password/request", {
+      const response = await authAPI.post("/auth/forgot-password/request", {
         phoneNumber: normalizedPhone,
         captchaValue: captchaToken,
       });
@@ -159,10 +143,7 @@ const ZaloPasswordRecovery = () => {
           {step === "captcha" ? content[lang].verify : content[lang].continue}
         </button>
 
-        <div
-          className="text-sm text-left text-gray-600 hover:underline cursor-pointer"
-          onClick={() => window.history.back()}
-        >
+        <div className="text-sm text-left text-gray-600 hover:underline cursor-pointer">
           {content[lang].back}
         </div>
       </form>
