@@ -3,7 +3,11 @@ import { X, ChevronLeft, Search } from "lucide-react";
 
 const ChangeLeaderGroup = ({ onClose, onSelect, conversation }) => {
   const [selectedUser, setSelectedUser] = useState(null);
-  const dummyUsers = conversation.participants;
+  const dummyUsers = conversation.participants.filter(
+    (user) => String(user._id) !== String(conversation.groupLeader)
+  );
+
+  console.log("Conversation object:", conversation);
 
   const sortedUsers = [...dummyUsers].sort((a, b) =>
     a.fullName.localeCompare(b.fullName, "vi")
@@ -103,11 +107,10 @@ const ChangeLeaderGroup = ({ onClose, onSelect, conversation }) => {
           </button>
           <button
             onClick={handleChangeLeader}
-            className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 ${
-              isCreateGroupDisabled
-                ? "bg-blue-300 cursor-not-allowed opacity-50"
-                : "bg-blue-600"
-            }`}
+            className={`px-4 py-2 text-sm text-white rounded hover:bg-blue-700 transition-all duration-200 ${isCreateGroupDisabled
+              ? "bg-blue-300 cursor-not-allowed opacity-50"
+              : "bg-blue-600"
+              }`}
             disabled={isCreateGroupDisabled}
           >
             Xác nhận

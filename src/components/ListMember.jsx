@@ -33,6 +33,7 @@ const ListMember = ({ onClose, conversation }) => {
       console.log(`Thêm nhóm phó cho ${currentMember.name}`);
       // Thực hiện hành động thêm nhóm phó
     } else if (option === "removeFromGroup") {
+      alert(`Xóa ${currentMember.name} khỏi nhóm`);
       console.log(`Xóa ${currentMember.name} khỏi nhóm`);
       // Thực hiện hành động xóa khỏi nhóm
     } else if (option === "leaveGroup") {

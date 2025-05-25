@@ -30,6 +30,7 @@ import MessageBubble from "../components/MessageBubble";
 import AddMemberGroup from "./AddMemberGroup";
 import GroupManagement from "./GroupManagement";
 import { toast } from "react-toastify";
+import CreateGroup from "./CreateGroup";
 
 const ChatInterface = ({ conversation }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -38,9 +39,14 @@ const ChatInterface = ({ conversation }) => {
   const [showAddMemberGroup, setShowAddMemberGroup] = useState(false);
   const [showGroupManagement, setShowGroupManagement] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   const toggleAddMemberGroup = () => {
     setShowAddMemberGroup(!showAddMemberGroup);
+  };
+
+  const toggleCreateGroup = () => {
+    setShowCreateGroup(!showCreateGroup);
   };
 
   const toggleGroupManagement = () => {
@@ -275,7 +281,15 @@ const ChatInterface = ({ conversation }) => {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleAddMemberGroup}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={
+              conversation.isGroup
+                ? toggleAddMemberGroup // nếu là group
+                : toggleCreateGroup // nếu không phải group
+            }
+          >
             <Users className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon">
@@ -409,6 +423,12 @@ const ChatInterface = ({ conversation }) => {
         <GroupManagement
           onClose={toggleGroupManagement}
           conversation={conversation}
+        />
+      )}
+
+      {showCreateGroup && (
+        <CreateGroup
+          onClose={toggleCreateGroup}
         />
       )}
     </div>
