@@ -13,8 +13,6 @@ import AccountInformation from "./components/AccountInformation";
 import React, { useEffect } from "react";
 import { initializeSocket } from "./services/socket";
 
-import { useEffect } from "react";
-import { initializeSocket } from "./services/socket";
 
 // Pages
 import LoginForm from "./pages/Login/LoginForm";
