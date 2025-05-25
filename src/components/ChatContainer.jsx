@@ -25,11 +25,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import EmojiPickerComponent from "./EmojiPickerComponent";
-
 import { messageService } from "../services/api/message.service";
 import MessageBubble from "../components/MessageBubble";
 import AddMemberGroup from "./AddMemberGroup";
 import GroupManagement from "./GroupManagement";
+import { toast } from "react-toastify";
 
 const ChatInterface = ({ conversation }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -47,11 +47,9 @@ const ChatInterface = ({ conversation }) => {
   };
 
   const scrollRef = useRef(null);
-
   const fileInputRef = useRef(null);
   const imgInputRef = useRef(null);
   const folderInputRef = useRef(null);
-
   const user = JSON.parse(localStorage.getItem("user")).user;
 
   // Lấy đuôi file
@@ -86,6 +84,19 @@ const ChatInterface = ({ conversation }) => {
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
+    const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1024MB
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(
+        "File vượt quá dung lượng tối đa 1024MB. Vui lòng chọn file nhỏ hơn.",
+        {
+          position: "top-right",
+          autoClose: 5000,
+          theme: "colored",
+        }
+      );
+      return;
+    }
     setIsUploading(true);
     try {
       // Gửi file tới backend
@@ -96,7 +107,14 @@ const ChatInterface = ({ conversation }) => {
 
       const response = await messageService.sendFileFolder(formData);
     } catch (error) {
-      alert("Không thể gửi file quá 1024MB");
+      toast.error(
+        "File vượt quá dung lượng tối đa 1024MB. Vui lòng chọn file nhỏ hơn.",
+        {
+          position: "top-right",
+          autoClose: 5000,
+          theme: "colored",
+        }
+      );
     } finally {
       setIsUploading(false);
     }
@@ -110,6 +128,17 @@ const ChatInterface = ({ conversation }) => {
       return;
     }
 
+    const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1024MB
+
+    // Kiểm tra từng file
+    for (let file of files) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`File "${file.name}" vượt quá giới hạn 1024MB.`, {
+          position: "top-right",
+        });
+        return;
+      }
+    }
     setIsUploading(true);
 
     try {
@@ -123,7 +152,11 @@ const ChatInterface = ({ conversation }) => {
         files: Array.from(files),
       });
     } catch (error) {
-      alert("Không thể gửi folder quá 1024MB");
+      toast.error("Không thể gửi folder quá 1024MB", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+      });
     } finally {
       setIsUploading(false);
     }
@@ -259,6 +292,7 @@ const ChatInterface = ({ conversation }) => {
           <MessageBubble
             key={message._id}
             message={message}
+            group={conversation.isGroup}
             user={user}
             getFileExtension={getFileExtension}
           />

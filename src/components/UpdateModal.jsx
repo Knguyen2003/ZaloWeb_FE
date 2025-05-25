@@ -80,8 +80,7 @@ const UpdateModal = ({ isOpen, onClose, onReturn }) => {
 
     try {
       await authService.updateProfile(user._id, updatedData);
-      toast.success("Cập nhật thông tin thành công");
-      onClose();
+      onReturn();
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
       toast.error("Cập nhật thất bại");

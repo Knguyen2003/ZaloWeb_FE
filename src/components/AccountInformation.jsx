@@ -15,6 +15,10 @@ import { getSocket } from "../services/socket";
 const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
   const [friendStatus, setFriendStatus] = useState(null);
 
+  const userLogin = JSON.parse(localStorage.getItem("user"));
+
+  console.log("userLogin", userLogin.user._id);
+
   useEffect(() => {
     const socket = getSocket();
 
@@ -166,50 +170,23 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
                 <h4 className="text-base font-semibold mr-1.5">
                   {user.fullName}
                 </h4>
-                <button className="text-blue-600 hover:underline text-sm">
-                  <span className="flex items-center text-sm text-black font-semibold">
-                    <Pencil className="w-3 h-3 text-black hover:text-blue-800" />
-                    _
-                  </span>
-                </button>
               </div>
             </div>
           </div>
 
           {/* Nút Kết bạn / Nhắn tin */}
-          <div className="flex flex-col justify-center items-center gap-2 mt-1 px-4">
-            {/* Khi chưa có friendStatus (null) */}
 
-            {!friendStatus && (
-              <div
-                className="flex justify-center gap-2 w-full"
-                onClick={handleSendFriendRequest}
-              >
-                <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100">
-                  Kết bạn
-                </button>
-                <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
-                  Nhắn tin
-                </button>
-              </div>
-            )}
+          {userLogin.user._id !== user._id && (
+            <div className="flex flex-col justify-center items-center gap-2 mt-1 px-4">
+              {/* Khi chưa có friendStatus (null) */}
 
-            {/* Khi đã là bạn bè */}
-            {friendStatus?.status === "accepted" && (
-              <button className="w-full py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
-                Nhắn tin
-              </button>
-            )}
-
-            {/* Khi đang chờ xác nhận và người dùng hiện tại là người được gửi lời mời (người nhận) */}
-            {friendStatus?.status === "pending" &&
-              friendStatus?.targetUser !== user._id && (
-                <div className="flex justify-center gap-2 w-full">
-                  <button
-                    className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100"
-                    onClick={handelAcceptFriendRequest}
-                  >
-                    Chấp nhận
+              {!friendStatus && (
+                <div
+                  className="flex justify-center gap-2 w-full"
+                  onClick={handleSendFriendRequest}
+                >
+                  <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100">
+                    Kết bạn
                   </button>
                   <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
                     Nhắn tin
@@ -217,24 +194,48 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
                 </div>
               )}
 
-            {/* Khi đang chờ xác nhận và người dùng hiện tại là người đã gửi lời mời */}
-            {friendStatus?.status === "pending" &&
-              friendStatus?.targetUser === user._id && (
-                <>
-                  <p className="text-xs text-gray-500 text-center">
-                    Bạn đã gửi lời mời kết bạn và đang chờ người này xác nhận
-                  </p>
+              {/* Khi đã là bạn bè */}
+              {friendStatus?.status === "accepted" && (
+                <button className="w-full py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
+                  Nhắn tin
+                </button>
+              )}
+
+              {/* Khi đang chờ xác nhận và người dùng hiện tại là người được gửi lời mời (người nhận) */}
+              {friendStatus?.status === "pending" &&
+                friendStatus?.targetUser !== user._id && (
                   <div className="flex justify-center gap-2 w-full">
+                    <button
+                      className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100"
+                      onClick={handelAcceptFriendRequest}
+                    >
+                      Chấp nhận
+                    </button>
                     <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
                       Nhắn tin
                     </button>
-                    <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100 text-red-500 hover:text-red-600">
-                      Hủy lời mời
-                    </button>
                   </div>
-                </>
-              )}
-          </div>
+                )}
+
+              {/* Khi đang chờ xác nhận và người dùng hiện tại là người đã gửi lời mời */}
+              {friendStatus?.status === "pending" &&
+                friendStatus?.targetUser === user._id && (
+                  <>
+                    <p className="text-xs text-gray-500 text-center">
+                      Bạn đã gửi lời mời kết bạn và đang chờ người này xác nhận
+                    </p>
+                    <div className="flex justify-center gap-2 w-full">
+                      <button className="flex-1 py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
+                        Nhắn tin
+                      </button>
+                      <button className="flex-1 py-1 rounded-md border font-medium text-sm hover:bg-gray-100 text-red-500 hover:text-red-600">
+                        Hủy lời mời
+                      </button>
+                    </div>
+                  </>
+                )}
+            </div>
+          )}
 
           <div className="w-full border-t-4 mt-1 border-gray-300"></div>
 

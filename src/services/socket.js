@@ -1,10 +1,19 @@
 import { io } from "socket.io-client";
+import { authService } from "../services/api/auth.service";
 
 let socket = null;
 
+const handleLogout = async () => {
+  try {
+    await authService.logout();
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+};
+
 export const initializeSocket = (userId) => {
   if (!socket) {
-    socket = io("https://zaloweb-production.up.railway.app", {
+    socket = io("http://localhost:5001/", {
       query: {
         userId,
         deviceType: "web",
@@ -26,15 +35,16 @@ export const initializeSocket = (userId) => {
       // Xử lý thông báo chấp nhận kết bạn
     });
 
-    // socket.on("forceLogout", (data) => {
-    //   localStorage.removeItem("user");
-    //   window.location.href = "/login";
-    // });
+    //Tự động đăng xuất khi cùng thiết bị
+    socket.on("forceLogout", (data) => {
+      handleLogout();
+    });
 
     socket.on("newMessage", (message) => {});
 
     socket.on("disconnect", () => {
       console.log("Disconnected from socket server");
+      handleLogout();
     });
   }
 };

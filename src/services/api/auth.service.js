@@ -38,7 +38,6 @@ export const authService = {
           withCredentials: true,
         }
       );
-
       localStorage.removeItem("user");
       disconnectSocket();
       window.location.href = "/login";

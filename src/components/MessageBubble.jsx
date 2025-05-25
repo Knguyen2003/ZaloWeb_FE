@@ -11,7 +11,7 @@ import MessageImage from "./MessageImage";
 import MessageFolder from "./MessageFolder";
 import { messageService } from "../services/api/message.service";
 
-const MessageBubble = ({ message, user, getFileExtension }) => {
+const MessageBubble = ({ message, user, getFileExtension, group }) => {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
     x: 0,
@@ -64,15 +64,19 @@ const MessageBubble = ({ message, user, getFileExtension }) => {
         className={`flex ${isSender ? "justify-end" : "justify-start"}`}
         onContextMenu={handleContextMenu}
       >
-        <div className="bg-blue-50 rounded-lg p-3 max-w-[80%]">
-          {!isSender && (
+        <div className="bg-blue-50 rounded-lg p-3 max-w-[90%]">
+          {!isSender && group && (
             <p className="text-sm text-gray-500">{message.senderId.fullName}</p>
           )}
 
           {message.messageType === "text" ? (
             <div>
               <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
-                <p className="text-sm">
+                <p
+                  className={`text-sm ${
+                    message.status === "recalled" ? "text-gray-400 italic" : ""
+                  }`}
+                >
                   {message.status === "recalled"
                     ? "Tin nhắn đã được thu hồi"
                     : message.content}
@@ -114,9 +118,9 @@ const MessageBubble = ({ message, user, getFileExtension }) => {
               </span>
             </div>
           ) : message.messageType === "file" ? (
-            <div className="group relative">
+            <div className="w-fit">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 flex items-center justify-center">
+                <div className="w-12 h-12 flex items-center justify-center">
                   <FileIconReact
                     extension={getFileExtension(message.fileInfo?.fileName)}
                     {...defaultStyles[
@@ -124,44 +128,51 @@ const MessageBubble = ({ message, user, getFileExtension }) => {
                     ]}
                   />
                 </div>
-                <div className="flex-1 min-w-0">
+
+                <div>
                   <p className="font-medium text-sm truncate">
                     {message.fileInfo?.fileName}
                   </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-muted-foreground">
+
+                  <div className="flex items-center justify-between ">
+                    <span className="text-xs text-muted-foreground mr-8">
                       {message.fileInfo?.fileSize} KB
+                      <span className="text-green-600 font-medium ml-2">
+                        ✓ Đã có trên máy
+                      </span>
                     </span>
                     {/* NUT DOWNLOAD */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={async () => {
-                        try {
-                          const response = await fetch(
-                            message.fileInfo?.fileUrl
-                          );
-                          const blob = await response.blob();
-                          const url = window.URL.createObjectURL(blob);
+                    <span className="flex items-center">
+                      <Button variant="ghost" size="icon">
+                        <FolderIcon className="h-5 w-5 hover:text-blue-600 " />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(
+                              message.fileInfo?.fileUrl
+                            );
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
 
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = message.fileInfo?.fileName || "download";
-                          document.body.appendChild(a);
-                          a.click();
-                          a.remove();
-                          window.URL.revokeObjectURL(url);
-                        } catch (error) {
-                          console.error("Tải file thất bại:", error);
-                        }
-                      }}
-                    >
-                      <Download className="h-5 w-5" />
-                    </Button>
-
-                    <Button variant="ghost" size="icon">
-                      <FolderIcon className="mr-2 h-4 w-4" />
-                    </Button>
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download =
+                              message.fileInfo?.fileName || "download";
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                          } catch (error) {
+                            console.error("Tải file thất bại:", error);
+                          }
+                        }}
+                      >
+                        <Download className="h-5 w-5 hover:text-blue-600" />
+                      </Button>
+                    </span>
                   </div>
                 </div>
               </div>

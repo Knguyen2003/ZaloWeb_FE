@@ -9,6 +9,7 @@ import {
   Settings,
 } from "lucide-react";
 import NavItem from "./ui/NavItem";
+import { authService } from "../services/api/auth.service";
 
 const MenuHome = ({ onOpenProfileModal }) => {
   // State để kiểm soát việc hiển thị
@@ -23,6 +24,14 @@ const MenuHome = ({ onOpenProfileModal }) => {
   // Hàm đóng menu khi nhấn ra ngoài
   const closeMenu = () => {
     setIsMenuOpen(false);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
@@ -82,12 +91,12 @@ const MenuHome = ({ onOpenProfileModal }) => {
 
             {/* Thông báo */}
             <div className="mt-3 text-xs border-t-2 pt-3">
-              <a
-                href="/logout"
-                className="flex items-center gap-2 text-sm hover:bg-gray-100 p-2 rounded"
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-sm hover:bg-gray-100 p-2 rounded w-full text-left"
               >
                 Đăng xuất
-              </a>
+              </button>
             </div>
           </div>
         )}

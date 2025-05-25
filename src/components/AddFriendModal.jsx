@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, CircleUserRound } from "lucide-react";
 import PropTypes from "prop-types";
 import { userService } from "../services/api/user.service";
+import { toast } from "react-toastify";
 
 const suggestions = [
   {
@@ -25,12 +26,34 @@ export default function AddFriendModal({ onClose, onSearch }) {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleSearch = async () => {
+    if (phoneNumber.trim() === "") {
+      toast.error("Vui lòng nhập số điện thoại để tìm kiếm", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+
+      return;
+    }
     try {
       const user = await userService.findUserByPhoneNumber(phoneNumber);
       onSearch(user);
     } catch (error) {
-      alert(
-        "Số điện thoại chưa đăng ký tài khoản hoặc không cho phép tìm kiếm"
+      toast.error(
+        "Số điện thoại chưa đăng ký tài khoản hoặc không cho phép tìm kiếm",
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+        }
       );
     }
   };
