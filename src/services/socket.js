@@ -35,9 +35,9 @@ export const initializeSocket = (userId) => {
       // Xử lý thông báo chấp nhận kết bạn
     });
 
-    //Tự động đăng xuất khi cùng thiết bị
     socket.on("forceLogout", (data) => {
-      handleLogout();
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     });
 
     socket.on("newMessage", (message) => {});
