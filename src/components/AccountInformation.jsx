@@ -196,7 +196,9 @@ const AccountInformation = ({ isOpen, onClose, onReturn, user }) => {
 
               {/* Khi đã là bạn bè */}
               {friendStatus?.status === "accepted" && (
-                <button className="w-full py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200">
+                <button className="w-full py-1 rounded-md bg-blue-100 text-blue-700 font-medium text-sm hover:bg-blue-200"
+                  onClick={() => console.log("Nhắn tin")}
+                >
                   Nhắn tin
                 </button>
               )}
