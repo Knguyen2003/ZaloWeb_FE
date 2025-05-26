@@ -19,6 +19,7 @@ const MessageBubble = ({
   group,
   selectedMessageId,
   setSelectedMessageId,
+  onDeleteMessage,
 }) => {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
@@ -50,6 +51,7 @@ const MessageBubble = ({
   const handleDeleteForMe = async () => {
     try {
       await messageService.deleteMessage(message._id);
+      onDeleteMessage(message._id);
     } catch (error) {
       console.error("Lỗi khi xoá tin nhắn phía tôi:", error.message);
     }
@@ -102,15 +104,18 @@ const MessageBubble = ({
           onClick={handleMessageClick}
         >
           {!isSender && group && (
-            <p className="text-sm text-gray-500">{message.senderId.fullName}</p>
+            <p className="text-sm text-gray-500 mb-2">
+              {message.senderId.fullName}
+            </p>
           )}
 
           {message.messageType === "text" ? (
             <div>
               <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
                 <p
-                  className={`text-sm ${message.status === "recalled" ? "text-gray-400 italic" : ""
-                    }`}
+                  className={`text-sm ${
+                    message.status === "recalled" ? "text-gray-400 italic" : ""
+                  }`}
                 >
                   {message.status === "recalled"
                     ? "Tin nhắn đã được thu hồi"
@@ -159,7 +164,7 @@ const MessageBubble = ({
                   <FileIconReact
                     extension={getFileExtension(message.fileInfo?.fileName)}
                     {...defaultStyles[
-                    getFileExtension(message.fileInfo?.fileName)
+                      getFileExtension(message.fileInfo?.fileName)
                     ]}
                   />
                 </div>
@@ -231,7 +236,11 @@ const MessageBubble = ({
           message.status !== "recalled" && (
             <div className="flex flex-col justify-end">
               <div className="flex flex-row gap-2">
-                <Button variant="ghost" size="icon" onClick={() => setSelectMemberForward(true)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectMemberForward(true)}
+                >
                   <Forward className="w-4 h-4" />
                 </Button>
               </div>

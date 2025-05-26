@@ -14,7 +14,6 @@ import React, { useEffect } from "react";
 import { initializeSocket } from "./services/socket";
 import Register from "./pages/Login/Register";
 
-
 // Pages
 import LoginForm from "./pages/Login/LoginForm";
 import Home from "./pages/Home/Home";
@@ -32,15 +31,15 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser).user;
-      if (user?._id) {
-        initializeSocket(user._id);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   if (storedUser) {
+  //     const user = JSON.parse(storedUser).user;
+  //     if (user?._id) {
+  //       initializeSocket(user._id);
+  //     }
+  //   }
+  // }, []);
   return (
     <Router>
       <div className="App">

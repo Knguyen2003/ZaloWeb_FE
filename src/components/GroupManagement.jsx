@@ -62,8 +62,6 @@ const GroupManagement = ({ onClose, conversation }) => {
     alert("Đã sao chép liên kết nhóm!");
   };
 
-  // Hàm xử lý khi user nhấn rời nhóm
-  // thay vì confirm cũ, giờ chuyển sang show confirm dialog
   const handleRequestLeaveGroup = (newLeaderId = null) => {
     if (conversation.groupLeader === user._id && !newLeaderId) {
       setShowChangeLeader(true);
@@ -78,8 +76,8 @@ const GroupManagement = ({ onClose, conversation }) => {
     setShowConfirmLeave(false);
     try {
       await leaveGroup(conversation._id, pendingNewLeaderId);
-      toast.error("Bạn đã rời nhóm thành công!", {
-        position: "top-right",
+      toast.success("Bạn đã rời nhóm thành công!", {
+        position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -107,6 +105,15 @@ const GroupManagement = ({ onClose, conversation }) => {
   const handleDeleteGroup = async () => {
     try {
       await deleteGroup(conversation._id);
+      toast.success("Nhóm đã được giải tán thành công!", {
+        position: "top-center", // hoặc "bottom-center" nếu bạn muốn ở dưới
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
       onClose();
     } catch (err) {
       console.error("Lỗi khi xóa nhóm:", err.message);

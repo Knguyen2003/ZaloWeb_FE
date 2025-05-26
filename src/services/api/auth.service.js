@@ -104,7 +104,10 @@ export const authService = {
       );
       return response.data;
     } catch (error) {
-      console.error("Update password error:", error.response?.data || error.message);
+      console.error(
+        "Update password error:",
+        error.response?.data || error.message
+      );
       throw error.response?.data || error.message;
     }
   },
@@ -114,7 +117,10 @@ export const authService = {
       const response = await API.post("/auth/verify-otp", { phoneNumber, otp });
       return response.data;
     } catch (error) {
-      console.error("OTP verification error:", error.response?.data || error.message);
+      console.error(
+        "OTP verification error:",
+        error.response?.data || error.message
+      );
       throw error.response?.data || error.message;
     }
   },
@@ -124,10 +130,21 @@ export const authService = {
       const response = await API.post("/auth/send-otp", { phoneNumber });
       return response.data;
     } catch (error) {
-      console.error("OTP request error:", error.response?.data || error.message);
+      console.error(
+        "OTP request error:",
+        error.response?.data || error.message
+      );
       throw error.response?.data || error.message;
     }
   },
 
-
+  async signup(userData) {
+    try {
+      const response = await API.post("/auth/signup", userData);
+      return response.data;
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
 };

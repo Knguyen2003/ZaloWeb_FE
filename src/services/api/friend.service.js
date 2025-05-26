@@ -44,6 +44,7 @@ export const friendService = {
     }
   },
 
+  // Chấp nhận lời mời kết bạn
   acceptRequest: async (requestId) => {
     try {
       const response = await API.post(
@@ -83,7 +84,6 @@ export const friendService = {
     }
   },
 
-
   // Lấy danh sách lời mời kết bạn
   getFriendRequests: async (userId) => {
     try {
@@ -111,6 +111,29 @@ export const friendService = {
         throw new Error(error.response.data.message);
       }
       throw new Error("Không thể lấy danh sách lời mời kết bạn");
+    }
+  },
+
+  // Từ chối lời mời kết bạn
+  rejectRequest: async (requestId) => {
+    try {
+      const response = await API.post(
+        `/friend/reject`,
+        { requestId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error("Không thể từ chối lời mời kết bạn");
     }
   },
 };

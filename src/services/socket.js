@@ -32,12 +32,20 @@ export const initializeSocket = (userId) => {
       console.log("Friend request accepted:", data);
     });
 
+    socket.on("updateGroupDeputy", (data) => {
+      console.log("Update phó nhóm:", data);
+    });
+
     socket.on("forceLogout", (data) => {
       localStorage.removeItem("user");
       window.location.href = "/login";
     });
 
     socket.on("newMessage", (message) => {});
+
+    socket.on("createGroup", (data) => {});
+
+    socket.on("leaveGroup", (data) => {});
 
     socket.on("disconnect", () => {
       console.log("Disconnected from socket server");

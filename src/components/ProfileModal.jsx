@@ -8,8 +8,6 @@ import PropTypes from "prop-types";
 const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
   const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const user = authService.getCurrentUser().user;
-
-
   const formatDate = (isoDateStr) => {
     const date = new Date(isoDateStr);
     return date.toLocaleDateString("vi-VN", {
@@ -56,8 +54,9 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, openAvatarChange }) => {
           <div
             className="h-36 bg-cover bg-center"
             style={{
-              backgroundImage: `url('${user.coverImage || "/public/backgroud.jpg"
-                }')`,
+              backgroundImage: `url('${
+                user.coverImage || "/public/backgroud.jpg"
+              }')`,
             }}
           ></div>
 

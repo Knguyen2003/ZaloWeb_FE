@@ -129,7 +129,7 @@ export const messageService = {
     }
   },
 
-  // Gửi lại tin nhắn (chuyển tiếp)
+  // Chuyển tiếp tin nhắn
   async forwardMessage({ originalMessageId, senderId, targetConversationIds }) {
     try {
       const response = await API.post(

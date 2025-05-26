@@ -192,6 +192,12 @@ const ChatInterface = ({ conversation }) => {
     }
   };
 
+  const onDeleteMessage = (messageId) => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((message) => message._id !== messageId)
+    );
+  };
+
   // Tự động cuộn xuống khi có tin nhắn mới
   useEffect(() => {
     if (scrollRef.current) {
@@ -298,9 +304,11 @@ const ChatInterface = ({ conversation }) => {
           <Button variant="ghost" size="icon">
             <Video className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={toggleGroupManagement}>
-            <MoreHorizontal className="h-5 w-5" />
-          </Button>
+          {conversation.isGroup && (
+            <Button variant="ghost" size="icon" onClick={toggleGroupManagement}>
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          )}
         </div>
       </header>
 
@@ -315,6 +323,7 @@ const ChatInterface = ({ conversation }) => {
             getFileExtension={getFileExtension}
             selectedMessageId={selectedMessageId}
             setSelectedMessageId={setSelectedMessageId}
+            onDeleteMessage={onDeleteMessage}
           />
         ))}
       </div>
@@ -426,11 +435,7 @@ const ChatInterface = ({ conversation }) => {
         />
       )}
 
-      {showCreateGroup && (
-        <CreateGroup
-          onClose={toggleCreateGroup}
-        />
-      )}
+      {showCreateGroup && <CreateGroup onClose={toggleCreateGroup} />}
     </div>
   );
 };

@@ -1,5 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Users, UserPlus, UsersRound, UserCheck, Search, ChevronLeft } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  UsersRound,
+  UserCheck,
+  Search,
+  ChevronLeft,
+} from "lucide-react";
 import AddFriendModal from "./AddFriendModal";
 import { friendService } from "../services/api/friend.service";
 import { getSocket } from "../services/socket";
@@ -12,15 +19,15 @@ const menuItems = [
   },
   {
     icon: <UsersRound className="w-5 h-5" />,
-    label: "Danh sách nhóm và cộng đồng",
+    label: "Danh sách nhóm",
   },
   {
     icon: <UserPlus className="w-5 h-5" />,
-    label: "Lời mời kết bạn",
+    label: "Danh sách lời mời kết bạn",
   },
   {
     icon: <UserCheck className="w-5 h-5" />,
-    label: "Lời mời vào nhóm và cộng đồng",
+    label: "Đã gửi lời mời kết bạn",
   },
 ];
 
@@ -45,7 +52,9 @@ export default function ContactSidebar({ onClose }) {
     } finally {
       setLoading(false);
     }
-  };  // Fetch friend requests
+  };
+
+  // Fetch friend requests
   const fetchFriendRequests = async () => {
     try {
       setLoading(true);
@@ -55,7 +64,6 @@ export default function ContactSidebar({ onClose }) {
       if (!userData.user._id) return;
 
       console.log("Fetching friend requests for user ID:", userData.user._id);
-
 
       const response = await friendService.getFriendRequests(userData.user._id);
       // The API returns { data: { totalRequests, requests } }
@@ -89,15 +97,13 @@ export default function ContactSidebar({ onClose }) {
 
       // Listen for friend request accepted
       socket.on("friendRequestAccepted", (data) => {
-        console.log("Friend request accepted:", data);
-        fetchFriends(); // Refresh friend list
-        fetchFriendRequests(); // Refresh friend requests
+        fetchFriends();
+        fetchFriendRequests();
       });
 
       // Listen for friend request rejected
       socket.on("friendRequestRejected", (data) => {
-        console.log("Friend request rejected:", data);
-        fetchFriendRequests(); // Refresh friend requests
+        fetchFriendRequests();
       });
 
       return () => {
@@ -175,7 +181,6 @@ export default function ContactSidebar({ onClose }) {
           <h1 className="text-lg font-semibold">Danh bạ</h1>
         </div>
       </div>
-
       {/* Thanh tìm kiếm */}
       <div className="flex items-center gap-2 z-0">
         <div className="relative flex-1">
@@ -195,7 +200,6 @@ export default function ContactSidebar({ onClose }) {
           <Users className="w-5 h-5 text-gray-600" />
         </button>
       </div>
-
       {/* Danh sách menu */}
       <div className="space-y-1">
         {menuItems.map((item, index) => (
@@ -203,9 +207,10 @@ export default function ContactSidebar({ onClose }) {
             key={index}
             onClick={() => setActiveMenuIndex(index)}
             className={`flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer 
-              ${index === activeMenuIndex
-                ? "bg-blue-100 font-medium text-blue-700"
-                : "hover:bg-blue-50 text-gray-700"
+              ${
+                index === activeMenuIndex
+                  ? "bg-blue-100 font-medium text-blue-700"
+                  : "hover:bg-blue-50 text-gray-700"
               }`}
           >
             {item.icon}
@@ -218,7 +223,6 @@ export default function ContactSidebar({ onClose }) {
           </div>
         ))}
       </div>
-
       {/* Dialog thêm bạn */}
       {isDialogOpen && (
         <AddFriendModal
@@ -229,7 +233,6 @@ export default function ContactSidebar({ onClose }) {
           }}
         />
       )}
-
       {/* Danh sách bạn bè - được sắp xếp theo thứ tự chữ cái */}
       {activeMenuIndex === 0 && (
         <div className="space-y-4 mt-2">
@@ -242,7 +245,9 @@ export default function ContactSidebar({ onClose }) {
             Object.entries(groupedFriends).map(([letter, letterFriends]) => (
               <div key={letter} className="mb-4">
                 <div className="sticky top-0 bg-gray-100 px-2 py-1 rounded">
-                  <h3 className="text-sm font-medium text-gray-600">{letter}</h3>
+                  <h3 className="text-sm font-medium text-gray-600">
+                    {letter}
+                  </h3>
                 </div>
                 <div className="space-y-2 mt-2">
                   {letterFriends.map((friend) => (
@@ -269,13 +274,15 @@ export default function ContactSidebar({ onClose }) {
                       <div>
                         <p className="font-medium">{friend.fullName}</p>
                         {friend.isOnline ? (
-                          <p className="text-xs text-green-600">Đang hoạt động</p>
+                          <p className="text-xs text-green-600">
+                            Đang hoạt động
+                          </p>
                         ) : (
                           <p className="text-xs text-gray-500">
                             {friend.lastSeen
                               ? `Hoạt động ${new Date(
-                                friend.lastSeen
-                              ).toLocaleDateString("vi-VN")}`
+                                  friend.lastSeen
+                                ).toLocaleDateString("vi-VN")}`
                               : "Không hoạt động"}
                           </p>
                         )}
@@ -288,20 +295,18 @@ export default function ContactSidebar({ onClose }) {
           )}
         </div>
       )}
-
       {/* Danh sách nhóm và cộng đồng */}
       {activeMenuIndex === 1 && (
         <div className="space-y-4 mt-2">
-          <h2 className="text-lg font-semibold">Danh sách nhóm và cộng đồng</h2>
+          <h2 className="text-lg font-semibold">Danh sách nhóm</h2>
           <p className="text-gray-500">Chưa có nhóm nào.</p>
           {/* TODO: Implement group list */}
         </div>
       )}
-
       {/* Danh sách lời mời kết bạn */}
       {activeMenuIndex === 2 && (
         <div className="space-y-4 mt-2">
-          <h2 className="text-lg font-semibold">Lời mời kết bạn</h2>
+          <h2 className="text-lg font-semibold">Danh sách lời mời kết bạn</h2>
           {loading ? (
             <div className="text-center py-4">Đang tải...</div>
           ) : friendRequests.length === 0 ? (
@@ -330,10 +335,9 @@ export default function ContactSidebar({ onClose }) {
                 )}
                 <div className="flex-1">
                   <p className="font-medium">{request.actionUser.fullName}</p>
-                  <p className="text-sm text-gray-500">
-                    Muốn kết bạn với bạn
-                  </p>
-                </div>                <div className="flex gap-2">
+                  <p className="text-sm text-gray-500">Muốn kết bạn với bạn</p>
+                </div>{" "}
+                <div className="flex gap-2">
                   <button
                     onClick={() => handleAccept(request._id)}
                     className="border border-gray-300 rounded px-3 py-1 hover:bg-gray-100"
@@ -352,11 +356,13 @@ export default function ContactSidebar({ onClose }) {
           )}
         </div>
       )}
-
-      {/* Danh sách lời mời vào nhóm và cộng đồng */}      {activeMenuIndex === 3 && (
+      {/* Danh sách lời mời vào nhóm và cộng đồng */}{" "}
+      {activeMenuIndex === 3 && (
         <div className="space-y-4 mt-2">
-          <h2 className="text-lg font-semibold">Lời mời vào nhóm</h2>
-          <p className="text-gray-500">Không có lời mời vào nhóm nào.</p>
+          <h2 className="text-lg font-semibold">
+            Danh sách đã gửi yêu cầu kết bạn
+          </h2>
+          <p className="text-gray-500">Không có yêu cầu chờ xác nhận nào.</p>
           {/* TODO: Implement group invitations */}
         </div>
       )}
@@ -365,5 +371,5 @@ export default function ContactSidebar({ onClose }) {
 }
 
 ContactSidebar.propTypes = {
-  onClose: PropTypes.func
+  onClose: PropTypes.func,
 };
