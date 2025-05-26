@@ -76,6 +76,7 @@ const Sidebar = () => {
       socket.on("newGroupLeader", fetchConversations);
       socket.on("groupUpdated", handleLeaveGroup);
       socket.on("leaveGroup", handleLeaveGroup);
+      socket.on("removeGroupDeputy", fetchConversations);
     }
 
     return () => {
@@ -85,6 +86,7 @@ const Sidebar = () => {
         socket.off("createGroup", fetchConversations);
         socket.off("groupUpdated", fetchConversations);
         socket.off("leaveGroup", fetchConversations);
+        socket.off("removeGroupDeputy", fetchConversations);
       }
     };
   }, []);

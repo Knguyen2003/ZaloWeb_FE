@@ -6,6 +6,7 @@ import {
   removeMemberFromGroup,
   setGroupDeputy,
   setGroupLeader,
+  removeGroupDeputy,
 } from "../services/api/conversation.service";
 import { toast } from "react-toastify";
 import { getSocket } from "../services/socket";
@@ -70,6 +71,21 @@ const ListMember = ({ onClose, conversation }) => {
     }
   };
 
+  //Xóa phó nhóm
+  const handleRemoveDeputy = async (conversationId) => {
+    try {
+      const response = await removeGroupDeputy(conversationId);
+      setUpdatedConversation((prev) => ({
+        ...prev,
+        groupDeputy: response.conversation.groupDeputy,
+      }));
+
+      toast.success("Xóa phó nhóm thành công!");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   // Đóng menu nếu click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -107,10 +123,12 @@ const ListMember = ({ onClose, conversation }) => {
 
     socket.on("updateGroupDeputy", handleUpdateDeputy);
     socket.on("newGroupLeader", handleUpdateLeader);
+    socket.on("removeGroupDeputy", handleUpdateDeputy);
 
     return () => {
       socket.off("updateGroupDeputy", handleUpdateDeputy);
       socket.off("newGroupLeader", handleUpdateLeader);
+      socket.on("removeGroupDeputy", handleUpdateDeputy);
     };
   }, [updatedConversation._id]);
 
@@ -208,9 +226,9 @@ const ListMember = ({ onClose, conversation }) => {
           >
             <ul>
               {user._id === updatedConversation.groupLeader
-                ? // Trưởng nhóm
-                  currentMember._id !== user._id && (
+                ? currentMember._id !== user._id && (
                     <>
+                      {/* Đổi nhóm trưởng */}
                       <li
                         className="px-4 py-2 cursor-pointer hover:bg-gray-200"
                         onClick={() =>
@@ -220,7 +238,18 @@ const ListMember = ({ onClose, conversation }) => {
                         Đổi nhóm trưởng
                       </li>
 
-                      {/* Thêm phó nhóm nếu currentMember chưa là trưởng/phó */}
+                      {/* Nếu currentMember là phó nhóm -> chỉ có thể xóa quyền phó nhóm, KHÔNG thể xóa khỏi nhóm */}
+                      {currentMember._id ===
+                        updatedConversation.groupDeputy && (
+                        <li
+                          className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                          onClick={() => handleRemoveDeputy(conversation._id)}
+                        >
+                          Xóa quyền phó nhóm
+                        </li>
+                      )}
+
+                      {/* Nếu currentMember không phải trưởng hoặc phó nhóm */}
                       {![
                         updatedConversation.groupLeader,
                         updatedConversation.groupDeputy,
@@ -252,8 +281,6 @@ const ListMember = ({ onClose, conversation }) => {
                   currentMember._id !== updatedConversation.groupLeader &&
                   currentMember._id !== updatedConversation.groupDeputy && (
                     <>
-                      {/* KHÔNG được thêm phó nhóm mới */}
-                      {/* Chỉ được xóa thành viên thường */}
                       <li
                         className="px-4 py-2 cursor-pointer hover:bg-gray-200"
                         onClick={() => handelLeaveGroup(currentMember._id)}

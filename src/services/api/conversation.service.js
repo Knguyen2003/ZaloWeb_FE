@@ -272,3 +272,33 @@ export const setGroupLeader = async (conversationId, groupLeaderId) => {
     throw new Error("Không thể thiết lập nhóm trưởng");
   }
 };
+
+export const removeGroupDeputy = async (conversationId) => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    const token = userData?.token;
+
+    if (!token) {
+      throw new Error("No authentication token found");
+    }
+
+    const response = await API.post(
+      `/conversations/remove-group-deputy`,
+      { conversationId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("Không thể xóa phó nhóm");
+  }
+};
