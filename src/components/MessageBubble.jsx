@@ -10,6 +10,7 @@ import { FileIcon as FileIconReact, defaultStyles } from "react-file-icon";
 import MessageImage from "./MessageImage";
 import MessageFolder from "./MessageFolder";
 import { messageService } from "../services/api/message.service";
+import SelectMemberForward from "./SelectMemberForward";
 
 const MessageBubble = ({
   message,
@@ -27,7 +28,10 @@ const MessageBubble = ({
   const isSender = message.senderId?._id === user._id;
   const messageRef = useRef(null);
 
-  //Hiển thị nút chuyển tiếp
+  // Sửa tên state cho đúng chính tả
+  const [showSelectMemberForward, setSelectMemberForward] = useState(false);
+
+  //Hiển thị nút chuyển tiếp (bật modal chọn thành viên)
   const handleMessageClick = (e) => {
     e.stopPropagation();
     setSelectedMessageId(message._id);
@@ -81,7 +85,11 @@ const MessageBubble = ({
           message.status !== "recalled" && (
             <div className="flex flex-col justify-end">
               <div className="flex flex-row gap-2">
-                <Button variant="ghost" size="icon">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSelectMemberForward(true)}
+                >
                   <Forward className="w-4 h-4" />
                 </Button>
               </div>
@@ -101,9 +109,8 @@ const MessageBubble = ({
             <div>
               <pre className="text-sm whitespace-pre-wrap overflow-x-auto">
                 <p
-                  className={`text-sm ${
-                    message.status === "recalled" ? "text-gray-400 italic" : ""
-                  }`}
+                  className={`text-sm ${message.status === "recalled" ? "text-gray-400 italic" : ""
+                    }`}
                 >
                   {message.status === "recalled"
                     ? "Tin nhắn đã được thu hồi"
@@ -152,7 +159,7 @@ const MessageBubble = ({
                   <FileIconReact
                     extension={getFileExtension(message.fileInfo?.fileName)}
                     {...defaultStyles[
-                      getFileExtension(message.fileInfo?.fileName)
+                    getFileExtension(message.fileInfo?.fileName)
                     ]}
                   />
                 </div>
@@ -224,13 +231,21 @@ const MessageBubble = ({
           message.status !== "recalled" && (
             <div className="flex flex-col justify-end">
               <div className="flex flex-row gap-2">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" onClick={() => setSelectMemberForward(true)}>
                   <Forward className="w-4 h-4" />
                 </Button>
               </div>
             </div>
           )}
       </div>
+
+      {/* Modal chọn thành viên chuyển tiếp */}
+      {showSelectMemberForward && (
+        <SelectMemberForward
+          message={message}
+          onClose={() => setSelectMemberForward(false)}
+        />
+      )}
 
       {/* Context Menu xuất hiện tại vị trí chuột */}
       {isContextMenuOpen && (
