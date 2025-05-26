@@ -11,7 +11,6 @@ import ZaloPasswordRecovery from "./components/PasswordRecovery";
 import ContactSidebar from "./components/ContactSidebar";
 import AccountInformation from "./components/AccountInformation";
 import React, { useEffect } from "react";
-import { initializeSocket } from "./services/socket";
 import Register from "./pages/Login/Register";
 
 // Pages
@@ -31,15 +30,6 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem("user");
-  //   if (storedUser) {
-  //     const user = JSON.parse(storedUser).user;
-  //     if (user?._id) {
-  //       initializeSocket(user._id);
-  //     }
-  //   }
-  // }, []);
   return (
     <Router>
       <div className="App">

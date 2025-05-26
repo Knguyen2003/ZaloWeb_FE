@@ -59,11 +59,8 @@ export default function ContactSidebar({ onClose }) {
     try {
       setLoading(true);
       const userData = JSON.parse(localStorage.getItem("user"));
-      console.log("userData:", userData);
 
       if (!userData.user._id) return;
-
-      console.log("Fetching friend requests for user ID:", userData.user._id);
 
       const response = await friendService.getFriendRequests(userData.user._id);
       // The API returns { data: { totalRequests, requests } }
