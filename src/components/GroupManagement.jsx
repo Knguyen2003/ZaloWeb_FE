@@ -62,8 +62,6 @@ const GroupManagement = ({ onClose, conversation }) => {
     alert("Đã sao chép liên kết nhóm!");
   };
 
-  // Hàm xử lý khi user nhấn rời nhóm
-  // thay vì confirm cũ, giờ chuyển sang show confirm dialog
   const handleRequestLeaveGroup = (newLeaderId = null) => {
     if (conversation.groupLeader === user._id && !newLeaderId) {
       setShowChangeLeader(true);

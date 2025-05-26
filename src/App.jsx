@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 import ZaloPasswordRecovery from "./components/PasswordRecovery";
 import ContactSidebar from "./components/ContactSidebar";
 import AccountInformation from "./components/AccountInformation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { initializeSocket } from "./services/socket";
 
 // Pages
@@ -30,15 +30,15 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser).user;
-      if (user?._id) {
-        initializeSocket(user._id);
-      }
-    }
-  }, []);
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   if (storedUser) {
+  //     const user = JSON.parse(storedUser).user;
+  //     if (user?._id) {
+  //       initializeSocket(user._id);
+  //     }
+  //   }
+  // }, []);
   return (
     <Router>
       <div className="App">

@@ -30,6 +30,7 @@ import MessageBubble from "../components/MessageBubble";
 import AddMemberGroup from "./AddMemberGroup";
 import GroupManagement from "./GroupManagement";
 import { toast } from "react-toastify";
+import CreateGroup from "./CreateGroup";
 
 const ChatInterface = ({ conversation }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -38,13 +39,14 @@ const ChatInterface = ({ conversation }) => {
   const [showAddMemberGroup, setShowAddMemberGroup] = useState(false);
   const [showGroupManagement, setShowGroupManagement] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   const toggleAddMemberGroup = () => {
     setShowAddMemberGroup(!showAddMemberGroup);
   };
 
   const toggleCreateGroup = () => {
-    alert("Sẽ hiện ra form tạo nhóm");
+    setShowCreateGroup(!showCreateGroup);
   };
 
   const toggleGroupManagement = () => {
@@ -425,6 +427,8 @@ const ChatInterface = ({ conversation }) => {
           conversation={conversation}
         />
       )}
+
+      {showCreateGroup && <CreateGroup onClose={toggleCreateGroup} />}
     </div>
   );
 };

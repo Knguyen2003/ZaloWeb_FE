@@ -54,7 +54,6 @@ const ZaloPasswordReset = ({ phone, lang, tempToken }) => {
         otp,
         tempToken,
       });
-      console.log(response.data);
       return response.data.resetToken;
     } catch (err) {
       throw new Error(err.response?.data?.message || "Xác minh OTP thất bại");
