@@ -13,7 +13,8 @@ const handleLogout = async () => {
 
 export const initializeSocket = (userId) => {
   if (!socket) {
-    socket = io("http://localhost:5001/", {
+    // socket = io("http://localhost:5001/", {
+    socket = io("https://zalo.up.railway.app/", {
       query: {
         userId,
         deviceType: "web",
