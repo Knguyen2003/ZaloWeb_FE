@@ -12,6 +12,7 @@ import ContactSidebar from "./components/ContactSidebar";
 import AccountInformation from "./components/AccountInformation";
 import React, { useEffect } from "react";
 import { initializeSocket } from "./services/socket";
+import Register from "./pages/Login/Register";
 
 
 // Pages
@@ -65,6 +66,7 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/account-information" element={<AccountInformation />} />
+          <Route path="/Register" element={<Register />} />
         </Routes>
 
         <ToastContainer

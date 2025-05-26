@@ -109,5 +109,25 @@ export const authService = {
     }
   },
 
+  async verifyOTP(phoneNumber, otp) {
+    try {
+      const response = await API.post("/auth/verify-otp", { phoneNumber, otp });
+      return response.data;
+    } catch (error) {
+      console.error("OTP verification error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
+
+  async requestOTP(phoneNumber) {
+    try {
+      const response = await API.post("/auth/send-otp", { phoneNumber });
+      return response.data;
+    } catch (error) {
+      console.error("OTP request error:", error.response?.data || error.message);
+      throw error.response?.data || error.message;
+    }
+  },
+
 
 };
