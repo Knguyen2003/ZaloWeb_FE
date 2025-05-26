@@ -21,7 +21,8 @@ function LoginForm() {
       password: "Mật khẩu",
       loginButton: "Đăng nhập với mật khẩu",
       forgotPassword: "Quên mật khẩu",
-      loginWithQR: "Đăng nhập qua mã QR",
+      notaccount: "Chưa có tài khoản ?",
+      loginWithQR: "Đăng Ký",
       downloadTitle: "Nâng cao hiệu quả công việc với Zalo PC",
       downloadDesc:
         "Gửi file lớn lên đến 1 GB, chụp màn hình, gọi video và nhiều tiện ích hơn nữa",
@@ -35,7 +36,8 @@ function LoginForm() {
       password: "Password",
       loginButton: "Login with password",
       forgotPassword: "Forgot password",
-      loginWithQR: "Login with QR code",
+      notaccount: "Don't have an account?",
+      loginWithQR: "Register",
       downloadTitle: "Enhance work efficiency with Zalo PC",
       downloadDesc:
         "Send large files up to 1 GB, take screenshots, make video calls and more utilities",
@@ -128,9 +130,17 @@ function LoginForm() {
             >
               {t.forgotPassword}
             </a>
-            <a href="#" className="text-blue-600 hover:underline">
-              {t.loginWithQR}
-            </a>
+            <div className="flex items-center gap-x-1">
+              <p>{t.notaccount}</p>
+              <a href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/Register");
+                }}
+                className="text-blue-600 hover:underline">
+                {t.loginWithQR}
+              </a>
+            </div>
           </div>
         </form>
       </div>
@@ -158,17 +168,15 @@ function LoginForm() {
       <div className="flex gap-4 mt-4">
         <button
           onClick={() => setLanguage("vi")}
-          className={`px-3 py-1 rounded-md text-sm ${
-            language === "vi" ? "text-blue-600 font-semibold" : "text-gray-600"
-          }`}
+          className={`px-3 py-1 rounded-md text-sm ${language === "vi" ? "text-blue-600 font-semibold" : "text-gray-600"
+            }`}
         >
           Tiếng Việt
         </button>
         <button
           onClick={() => setLanguage("en")}
-          className={`px-3 py-1 rounded-md text-sm ${
-            language === "en" ? "text-blue-600 font-semibold" : "text-gray-600"
-          }`}
+          className={`px-3 py-1 rounded-md text-sm ${language === "en" ? "text-blue-600 font-semibold" : "text-gray-600"
+            }`}
         >
           English
         </button>

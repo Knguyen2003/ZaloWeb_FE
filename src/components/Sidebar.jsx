@@ -163,64 +163,64 @@ const Sidebar = () => {
         ) : error ? (
           <div className="p-4 text-center text-red-500">{error}</div>
         ) : (
-          console.log(chatItems) || ( // Log chatItems to console for debugging
-            <div className="divide-y">
-              {chatItems.map((chat) => (
-                <div
-                  key={chat._id}
-                  className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setSelectedUser(chat)}
-                >
-                  {chat.avatar ? (
-                    <img
-                      src={chat.avatar}
-                      alt="avatar"
-                      className="h-11 w-11 rounded-full object-cover"
-                    />
-                  ) : chat.isGroup ? (
-                    <GroupAvatar chat={chat} />
-                  ) : chat.groupName === "Cloud của tôi" ? (
-                    <img
-                      src="/cloud.jpg"
-                      alt="Cloud của tôi"
-                      className="h-11 w-11 aspect-square rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-11 w-11 aspect-square rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
-                      {chat.name
-                        ?.split(" ")
-                        .map((word) => word[0])
-                        .join("")
-                        .slice(0, 2)
-                        .toUpperCase()}
-                    </div>
-                  )}
-                  <div className="flex flex-col w-full ">
-                    <div className="flex justify-between items-center">
-                      <h3 className="max-w-[180px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                        {chat.name && chat.name.trim() !== ""
-                          ? chat.name
-                          : chat.groupName}
-                      </h3>
-                      <span className="text-xs text-gray-500 whitespace-nowrap">
-                        {formatUpdatedAt(chat.updatedAt)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center w-full">
-                      <p className="text-sm text-gray-500 truncate max-w-[80%]">
-                        {chat.lastMessage?.content || "Không có tin nhắn"}
-                      </p>
-                      {chat.unseenCount > 0 && (
-                        <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
-                          {chat.unseenCount}
-                        </div>
-                      )}
-                    </div>
+
+          <div className="divide-y">
+            {chatItems.map((chat) => (
+              <div
+                key={chat._id}
+                className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer"
+                onClick={() => setSelectedUser(chat)}
+              >
+                {chat.avatar ? (
+                  <img
+                    src={chat.avatar}
+                    alt="avatar"
+                    className="h-11 w-11 rounded-full object-cover"
+                  />
+                ) : chat.isGroup ? (
+                  <GroupAvatar chat={chat} />
+                ) : chat.groupName === "Cloud của tôi" ? (
+                  <img
+                    src="/cloud.jpg"
+                    alt="Cloud của tôi"
+                    className="h-11 w-11 aspect-square rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-11 w-11 aspect-square rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-semibold">
+                    {chat.name
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+                )}
+                <div className="flex flex-col w-full ">
+                  <div className="flex justify-between items-center">
+                    <h3 className="max-w-[180px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                      {chat.name && chat.name.trim() !== ""
+                        ? chat.name
+                        : chat.groupName}
+                    </h3>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                      {formatUpdatedAt(chat.updatedAt)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center w-full">
+                    <p className="text-sm text-gray-500 truncate max-w-[80%]">
+                      {chat.lastMessage?.content || "Không có tin nhắn"}
+                    </p>
+                    {chat.unseenCount > 0 && (
+                      <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                        {chat.unseenCount}
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )
+              </div>
+            ))}
+          </div>
+
         )}
       </div>
 

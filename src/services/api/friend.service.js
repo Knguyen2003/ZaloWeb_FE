@@ -82,4 +82,35 @@ export const friendService = {
       throw new Error("Không thể lấy danh sách bạn bè");
     }
   },
+
+
+  // Lấy danh sách lời mời kết bạn
+  getFriendRequests: async (userId) => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("user"));
+      const userIdToUse = userId || userData?._id;
+
+      if (!userIdToUse) {
+        throw new Error("Không tìm thấy thông tin người dùng");
+      }
+
+      const response = await API.get(`/friend/requests/${userIdToUse}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+      return response.data;
+    } catch (error) {
+      // Handle 404 (no friend requests) gracefully
+      if (error.response && error.response.status === 404) {
+        return { data: { totalRequests: 0, requests: [] } };
+      }
+
+      if (error.response && error.response.data) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error("Không thể lấy danh sách lời mời kết bạn");
+    }
+  },
 };
