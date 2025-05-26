@@ -19,6 +19,7 @@ const MessageBubble = ({
   group,
   selectedMessageId,
   setSelectedMessageId,
+  onDeleteMessage,
 }) => {
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({
@@ -50,6 +51,7 @@ const MessageBubble = ({
   const handleDeleteForMe = async () => {
     try {
       await messageService.deleteMessage(message._id);
+      onDeleteMessage(message._id);
     } catch (error) {
       console.error("Lỗi khi xoá tin nhắn phía tôi:", error.message);
     }

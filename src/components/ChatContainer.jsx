@@ -192,6 +192,12 @@ const ChatInterface = ({ conversation }) => {
     }
   };
 
+  const onDeleteMessage = (messageId) => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((message) => message._id !== messageId)
+    );
+  };
+
   // Tự động cuộn xuống khi có tin nhắn mới
   useEffect(() => {
     if (scrollRef.current) {
@@ -317,6 +323,7 @@ const ChatInterface = ({ conversation }) => {
             getFileExtension={getFileExtension}
             selectedMessageId={selectedMessageId}
             setSelectedMessageId={setSelectedMessageId}
+            onDeleteMessage={onDeleteMessage}
           />
         ))}
       </div>
